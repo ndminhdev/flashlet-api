@@ -75,13 +75,3 @@ if (!CLOUD_NAME || !CLOUD_KEY || !CLOUD_SECRET) {
   logger.error('Missing cloudinary configs. Please set them.');
   process.exit(1);
 }
-
-// oxford dictionary api
-export const OXFORD_BASE_URL = process.env.OXFORD_BASE_URL;
-export const OXFORD_APP_ID = process.env.OXFORD_APP_ID;
-export const OXFORD_APP_KEY = process.env.OXFORD_APP_KEY;
-
-if (!OXFORD_BASE_URL || !OXFORD_APP_ID || !OXFORD_APP_KEY) {
-  logger.error('Missing oxford dictionary api configs. Please set them.');
-  process.exit(1);
-}

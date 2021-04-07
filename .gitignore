@@ -13,6 +13,10 @@ logs
 results
 tmp
 
+# ignore build files
+build
+dist
+
 # Coverage reports
 coverage
 
@@ -37,3 +41,6 @@ yarn.lock
 
 # ignore package-lock.json
 package-lock.json
+
+# ignore eslintcache
+.eslintcache
