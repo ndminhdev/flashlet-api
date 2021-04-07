@@ -17,18 +17,12 @@
   ],
   "author": "Dang Minh <ndminhdev@gmail.com>",
   "license": "ISC",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "post-commit": "git update-index --again"
-    }
-  },
   "scripts": {
     "build": "babel src --out-dir dist",
     "start": "nodemon --exec babel-node src/server.js",
     "test": "mocha --require @babel/register __tests__/**/*.spec.js",
     "serve": "node dist/server.js",
-    "pretty": "prettier --write \"{src,__{tests,mocks}__}/**/*.js\""
+    "prepare": "husky install"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.4.2",
@@ -59,10 +53,14 @@
     "chai-http": "^4.3.0",
     "eslint": "^7.22.0",
     "eslint-plugin-mocha": "^8.1.0",
-    "husky": "^5.2.0",
+    "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
     "mocha": "^8.3.2",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "{src,__{tests,mocks}__}/**/*.js": "prettier --write"
   }
 }

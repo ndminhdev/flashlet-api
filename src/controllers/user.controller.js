@@ -84,11 +84,7 @@ export const forgotPassword = async (req, resp, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new HttpError(
-        404,
-        'Account with this email address is not registered',
-        { email }
-      );
+      throw new HttpError(404, 'Account with this email address is not registered', { email });
     }
 
     const token = await user.generateResetPasswordToken();
@@ -104,8 +100,7 @@ export const forgotPassword = async (req, resp, next) => {
     await sendEmailWithSendgrid(user.email, subject, text, html);
 
     resp.status(200).json({
-      message:
-        'Check your mailbox and following the steps to recover your account',
+      message: 'Check your mailbox and following the steps to recover your account',
       data: { token },
     });
   } catch (err) {
@@ -199,8 +194,8 @@ export const changeProfile = async (req, resp, next) => {
     resp.status(200).json({
       message: 'Your profile has been saved',
       data: {
-        user: req.user
-      }
+        user: req.user,
+      },
     });
   } catch (err) {
     next(err);
@@ -209,7 +204,7 @@ export const changeProfile = async (req, resp, next) => {
 
 export const removeAccount = async (req, resp, next) => {
   try {
-    await User.deleteOne({ id: req.user.id });
+    await req.user.remove();
     resp.status(200).json({
       message: 'Your account has been removed. You can not undo this action.',
     });
