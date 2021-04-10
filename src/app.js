@@ -16,15 +16,13 @@ mongoose
   .connect(MONGO_URI, {
     useCreateIndex: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
   })
   .then(() => {
     logger.debug('MongoDB connected.');
   })
   .catch(() => {
-    logger.error(
-      'MongoDB connection failed. Make sure MongoDB instance is running.'
-    );
+    logger.error('MongoDB connection failed. Make sure MongoDB instance is running.');
   });
 
 // configure passport
@@ -38,21 +36,18 @@ app.use(compression());
 app.use(
   cors({
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization']
   })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test route
-app.get('/v1/users', (req, resp, next) => {
-  resp.json({ status: 'running' });
-});
-
 // Import routes
 import userRoutes from './routes/user.route';
+import setRoutes from './routes/set.route';
 
 // Primary app routes
 app.use('/v1/users', userRoutes);
+app.use('/v1/sets', setRoutes);
 
 export default app;

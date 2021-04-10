@@ -10,14 +10,14 @@ const { expect } = chai;
 
 chai.use(chaiHttp);
 
-describe('Users', function () {
+describe('USERS', function () {
   before(async function () {
     await User.deleteMany({});
   });
 
   // POST /v1/users/signup
-  describe('POST api/users/signup', function () {
-    it('It should create a new user', async function () {
+  describe('POST /v1/users/signup', function () {
+    it('should create a new user', async function () {
       const user = {
         email: 'ndminhdev@gmail.com',
         name: 'Dang Minh',
@@ -34,8 +34,8 @@ describe('Users', function () {
   let token = '';
 
   // POST /v1/users/signin
-  describe('POST api/users/signin', function () {
-    it('It should sign in with email and password', async function () {
+  describe('POST /v1/users/signin', function () {
+    it('should sign in with email and password', async function () {
       const user = {
         email: 'ndminhdev@gmail.com',
         password: '@6991hniM'
@@ -53,8 +53,8 @@ describe('Users', function () {
   let resetToken = '';
 
   // POST /v1/users/password/forgot
-  describe('POST api/users/password/forgot', function () {
-    it('It should response with a reset password token', async function () {
+  describe('POST /v1/users/password/forgot', function () {
+    it('should response with a reset password token', async function () {
       const formData = {
         email: 'ndminhdev@gmail.com'
       };
@@ -68,14 +68,17 @@ describe('Users', function () {
   });
 
   // POST /v1/users/password/reset
-  describe('POST api/users/password/reset', function () {
-    it('It should return a success message', async function () {
+  describe('POST /v1/users/password/reset', function () {
+    it('should return a success message', async function () {
       const formData = {
         password: '@6991hniM',
         password2: '@6991hniM'
       };
 
-      const resp = await chai.request(server).post(`/v1/users/password/reset?token=${resetToken}`).send(formData);
+      const resp = await chai
+        .request(server)
+        .post(`/v1/users/password/reset?token=${resetToken}`)
+        .send(formData);
       expect(resp).to.have.status(200);
       expect(resp.body.message).to.be.a('string');
       expect(resp.body.message).not.to.be.empty;
@@ -84,15 +87,17 @@ describe('Users', function () {
 
   // POST /v1/users/password/change
   describe('POST /v1/users/password/change', function () {
-    it('It should return a success message', async function () {
+    it('should return a success message', async function () {
       const formData = {
         oldPassword: '@6991hniM',
         password: '@6991hnim',
         password2: '@6991hnim'
       };
 
-      const resp = await chai.request(server)
-        .post('/v1/users/password/change').set({ 'Authorization': `Bearer ${token}` })
+      const resp = await chai
+        .request(server)
+        .post('/v1/users/password/change')
+        .set({ Authorization: `Bearer ${token}` })
         .send(formData);
       expect(resp).to.have.status(200);
       expect(resp.body.message).to.be.a('string');
@@ -102,18 +107,23 @@ describe('Users', function () {
 
   // PATCH /v1/users/me
   describe('PATCH /v1/users/me', function () {
-    it('It should return user profile', async function () {
+    it('should return user profile', async function () {
       const formData = {
         email: 'ndminh1307@gmail.com',
         name: 'Dang Minh Ngo'
       };
 
-      const resp = await chai.request(server)
+      const resp = await chai
+        .request(server)
         .patch('/v1/users/me')
-        .set({ 'Authorization': `Bearer ${token}` })
+        .set({ Authorization: `Bearer ${token}` })
         .field('email', formData.email)
         .field('name', formData.name)
-        .attach('profileImage', fs.readFileSync(path.resolve(__dirname, './photo.jpeg')), 'photo.jpeg');
+        .attach(
+          'profileImage',
+          fs.readFileSync(path.resolve(__dirname, './photo.jpeg')),
+          'photo.jpeg'
+        );
 
       expect(resp).to.have.status(200);
       expect(resp.body.message).to.be.a('string');
@@ -125,8 +135,11 @@ describe('Users', function () {
 
   // DELETE /v1/users/me
   describe('DELETE /v1/users/me', function () {
-    it('It should return a success message', async function () {
-      const resp = await chai.request(server).del('/v1/users/me').set({ 'Authorization': `Bearer ${token}` });
+    it('should return a success message', async function () {
+      const resp = await chai
+        .request(server)
+        .del('/v1/users/me')
+        .set({ Authorization: `Bearer ${token}` });
 
       expect(resp).to.have.status(200);
       expect(resp.body.message).to.be.a('string');
