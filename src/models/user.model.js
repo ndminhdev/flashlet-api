@@ -3,13 +3,9 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import HttpError from '../utils/httpError';
 
-import {
-  JWT_SECRET,
-  RESET_PASSWORD_SECRET,
-  SALT_ROUNDS,
-} from '../utils/secrets';
+import { JWT_SECRET, RESET_PASSWORD_SECRET, SALT_ROUNDS } from '../utils/secrets';
 
-const schema = new Schema(
+const userSchema = new Schema(
   {
     email: String,
     name: String,
@@ -32,7 +28,7 @@ const schema = new Schema(
 /**
  * Format json before sending to client
  */
-schema.methods.toJSON = function () {
+userSchema.methods.toJSON = function () {
   const user = this;
   const userObj = user.toObject();
   const { _id, email, name, profileImage, profileImageDefault } = userObj;
@@ -48,7 +44,7 @@ schema.methods.toJSON = function () {
 /**
  * Hash password before save
  */
-schema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
   const user = this;
 
   if (user.isModified('password')) {
@@ -62,7 +58,7 @@ schema.pre('save', async function (next) {
 /**
  * Compare password
  */
-schema.methods.comparePassword = async function (candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   const user = this;
   const matchPassword = await bcrypt.compare(candidatePassword, user.password);
   return matchPassword;
@@ -71,7 +67,7 @@ schema.methods.comparePassword = async function (candidatePassword) {
 /**
  * Check duplicate email
  */
-schema.statics.checkDuplicate = async function (email) {
+userSchema.statics.checkDuplicate = async function (email) {
   const user = await User.findOne({ email });
   return !!user;
 };
@@ -79,7 +75,7 @@ schema.statics.checkDuplicate = async function (email) {
 /**
  * Find an user by email and password
  */
-schema.statics.findByEmailAndPassword = async function (email, password) {
+userSchema.statics.findByEmailAndPassword = async function (email, password) {
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -101,7 +97,7 @@ schema.statics.findByEmailAndPassword = async function (email, password) {
 /**
  * Generate auth client token of an user
  */
-schema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
   const token = jwt.sign({ id: user.id }, JWT_SECRET);
   user.tokens = user.tokens.concat({ token });
@@ -112,7 +108,7 @@ schema.methods.generateAuthToken = async function () {
 /**
  * Generate a reset password token
  */
-schema.methods.generateResetPasswordToken = async function () {
+userSchema.methods.generateResetPasswordToken = async function () {
   const user = this;
   const token = jwt.sign({ id: user.id }, RESET_PASSWORD_SECRET, {
     expiresIn: '30m',
@@ -125,7 +121,7 @@ schema.methods.generateResetPasswordToken = async function () {
 /**
  * Find user by token
  */
-schema.statics.findUserByResetToken = async function (token) {
+userSchema.statics.findUserByResetToken = async function (token) {
   const decoded = jwt.verify(token, RESET_PASSWORD_SECRET);
   const user = await User.findById(decoded.id);
 
@@ -136,6 +132,6 @@ schema.statics.findUserByResetToken = async function (token) {
   return user;
 };
 
-const User = mongoose.model('User', schema);
+const User = mongoose.model('User', userSchema);
 
 export default User;
