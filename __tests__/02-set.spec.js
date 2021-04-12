@@ -62,6 +62,31 @@ describe('SETS', function () {
         .set({ Authorization: `Bearer ${token}` })
         .send(set);
       expect(resp).to.have.status(201);
+      expect(resp.body.data.set.title).to.be.equal(set.title);
+      expect(resp.body.data.set.description).to.be.equal(set.description);
+      expect(resp.body.data.set.isPublic).to.be.equal(set.isPublic);
+      set._id = resp.body.data.set._id;
+    });
+  });
+
+  // PUT /v1/sets/:setId
+  describe('PUT /v1/sets/:setId', function () {
+    it('should response with an updated set', async function () {
+      const updatedSet = {
+        title: 'Business Communication Updated',
+        description: 'Description updated',
+        isPublic: false
+      };
+
+      const resp = await chai
+        .request(server)
+        .put(`/v1/sets/${set._id}`)
+        .set({ Authorization: `Bearer ${token}` })
+        .send(updatedSet);
+      expect(resp).to.have.status(200);
+      expect(resp.body.data.set.title).to.be.equal(updatedSet.title);
+      expect(resp.body.data.set.description).to.be.equal(updatedSet.description);
+      expect(resp.body.data.set.isPublic).to.be.equal(updatedSet.isPublic);
     });
   });
 });

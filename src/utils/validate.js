@@ -61,7 +61,7 @@ export const changePasswordSchema = Yup.object().shape({
 });
 
 // Set schemas
-export const createSetSchema = Yup.object().shape({
+export const setSchema = Yup.object().shape({
   title: Yup.string().min(1, 'Title is required').required('Title is required'),
   description: Yup.string().min(1, 'Description is required').required('Description is required'),
   isPublic: Yup.bool().required('isPublic is required')
