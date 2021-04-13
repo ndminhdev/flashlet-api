@@ -54,7 +54,7 @@ export const searchSets = async (req, resp, next) => {
       }
     ]);
 
-    const hasNextPage = Math.floor(setsCount / limit) + 1 === +page;
+    const hasNextPage = !(Math.floor(setsCount / limit) + 1 === +page);
 
     const sets = await Set.aggregate([
       {
@@ -96,13 +96,13 @@ export const searchSets = async (req, resp, next) => {
         }
       },
       {
+        $sort: { [sortBy]: +orderBy }
+      },
+      {
         $skip: (+page - 1) * +limit
       },
       {
         $limit: +limit
-      },
-      {
-        $sort: { [sortBy]: orderBy }
       }
     ]);
 
@@ -176,13 +176,13 @@ export const getMySets = async (req, resp, next) => {
         }
       },
       {
+        $sort: { [sortBy]: +orderBy }
+      },
+      {
         $skip: (+page - 1) * +limit
       },
       {
         $limit: +limit
-      },
-      {
-        $sort: { [sortBy]: orderBy }
       }
     ]);
 
