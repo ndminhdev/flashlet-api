@@ -1,29 +1,16 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import compression from 'compression';
 import helmet from 'helmet';
 import cors from 'cors';
 import passport from 'passport';
 
-import logger from './utils/logger';
-import { PORT, MONGO_URI } from './utils/secrets';
+import { PORT } from './utils/secrets';
 import configurePassportAuth from './config/passport';
 
 const app = express();
 
 // mongoose connect
-mongoose
-  .connect(MONGO_URI, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    logger.debug('MongoDB connected.');
-  })
-  .catch(() => {
-    logger.error('MongoDB connection failed. Make sure MongoDB instance is running.');
-  });
+import './database/mongoose';
 
 // configure passport
 configurePassportAuth(passport);
@@ -48,6 +35,6 @@ import setRoutes from './routes/set.route';
 
 // Primary app routes
 app.use('/v1/users', userRoutes);
-app.use('/v1/sets', setRoutes);
+app.use('/v1', setRoutes);
 
 export default app;

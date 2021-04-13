@@ -69,6 +69,14 @@ describe('SETS', function () {
     });
   });
 
+  // GET /v1/sets/:setId
+  describe('GET /v1/sets/:setId', function () {
+    it('should response a set that its "isPublic" is true', async function () {
+      const resp = await chai.request(server).get(`/v1/sets/${set._id}`);
+      expect(resp).to.have.status(200);
+    });
+  });
+
   // PUT /v1/sets/:setId
   describe('PUT /v1/sets/:setId', function () {
     it('should response with an updated set', async function () {
