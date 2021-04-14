@@ -8,6 +8,12 @@ const route = new Router();
 
 route.post('/signup', userControllers.createAccount);
 route.post('/signin', userControllers.signIn);
+route.delete('/signout', passport.authenticate('jwt', { session: false }), userControllers.signOut);
+route.delete(
+  '/signout/all',
+  passport.authenticate('jwt', { session: false }),
+  userControllers.signOutAll
+);
 route.post('/password/forgot', userControllers.forgotPassword);
 route.post('/password/reset', userControllers.resetPassword);
 route.post(

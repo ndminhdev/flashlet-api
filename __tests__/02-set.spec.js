@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 
@@ -69,6 +72,31 @@ describe('SETS', function () {
     });
   });
 
+  // GET /v1/sets/subject/:keyword
+  describe('GET /v1/sets/subject/:keyword', function () {
+    it('should response with sets matching subject', async function () {
+      const resp = await chai.request(server).get('/v1/sets/subject/business');
+      expect(resp).to.have.status(200);
+      expect(resp.body.data.hasNextPage).to.be.a('boolean');
+      expect(resp.body.data.setsCount).to.be.a('number');
+      expect(resp.body.data.sets).to.be.a('array');
+    });
+  });
+
+  // GET /v1/sets
+  describe('GET /v1/sets', function () {
+    it('should response with user\'s own sets', async function () {
+      const resp = await chai
+        .request(server)
+        .get('/v1/sets')
+        .set({ Authorization: `Bearer ${token}` });
+      expect(resp).to.have.status(200);
+      expect(resp.body.data.hasNextPage).to.be.a('boolean');
+      expect(resp.body.data.setsCount).to.be.a('number');
+      expect(resp.body.data.sets).to.be.a('array');
+    });
+  });
+
   // GET /v1/sets/:setId
   describe('GET /v1/sets/:setId', function () {
     it('should response a set that its "isPublic" is true', async function () {
@@ -95,6 +123,39 @@ describe('SETS', function () {
       expect(resp.body.data.set.title).to.be.equal(updatedSet.title);
       expect(resp.body.data.set.description).to.be.equal(updatedSet.description);
       expect(resp.body.data.set.isPublic).to.be.equal(updatedSet.isPublic);
+    });
+  });
+
+  const card = {
+    term: 'origin',
+    definition: 'The starting point on the grid'
+  };
+
+  // POST /v1/sets/:setId/cards
+  describe('POST /v1/sets/:setId/cards', function () {
+    it('should add a card to the set', async function () {
+      const resp = await chai
+        .request(server)
+        .post(`/v1/sets/${set._id}/cards`)
+        .set({ Authorization: `Bearer ${token}` })
+        .field('email', card.term)
+        .field('name', card.definition)
+        .attach('image', fs.readFileSync(path.resolve(__dirname, './photo.jpeg')), 'photo.jpeg');
+
+      expect(resp).to.have.status(201);
+      card._id = resp.body.data.card._id;
+    });
+  });
+
+  // DEL /v1/sets/:setId/cards/:cardId
+  describe('DEL /v1/sets/:setId/cards/:cardId', function () {
+    it('should add a card to the set', async function () {
+      const resp = await chai
+        .request(server)
+        .del(`/v1/sets/${set._id}/cards/${card._id}`)
+        .set({ Authorization: `Bearer ${token}` });
+
+      expect(resp).to.have.status(200);
     });
   });
 });

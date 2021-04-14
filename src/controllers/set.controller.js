@@ -304,8 +304,11 @@ export const addCard = async (req, resp, next) => {
 
     set.cards = set.cards.concat(card);
     await set.save();
-    resp.status(200).json({
-      message: 'Card added to set'
+    resp.status(201).json({
+      message: 'Card added to set',
+      data: {
+        card: set.cards[set.cards.length - 1]
+      }
     });
   } catch (err) {
     next(err);

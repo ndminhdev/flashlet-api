@@ -4,7 +4,7 @@ import {
   signInSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
-  changePasswordSchema,
+  changePasswordSchema
 } from '../utils/validate';
 import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
@@ -26,7 +26,7 @@ export const createAccount = async (req, resp, next) => {
 
     if (isDuplicate) {
       throw new HttpError(409, 'Email already in use', {
-        email: req.body.email,
+        email: req.body.email
       });
     }
 
@@ -37,7 +37,7 @@ export const createAccount = async (req, resp, next) => {
     await newUser.save();
     resp.status(201).json({
       message: 'Create account with email address successfully',
-      data: { user: newUser },
+      data: { user: newUser }
     });
   } catch (err) {
     next(err);
@@ -61,7 +61,37 @@ export const signIn = async (req, resp, next) => {
     const token = await user.generateAuthToken();
     resp.status(200).json({
       message: `Sign in as ${user.email}`,
-      data: { user, token },
+      data: { user, token }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Sign out
+ */
+export const signOut = async (req, resp, next) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => token.token !== req.token);
+    await req.user.save();
+    resp.status(200).json({
+      message: 'Signed out'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Sign out from all devices
+ */
+export const signOutAll = async (req, resp, next) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    resp.status(200).json({
+      message: 'Signed out from all devices'
     });
   } catch (err) {
     next(err);
@@ -101,7 +131,7 @@ export const forgotPassword = async (req, resp, next) => {
 
     resp.status(200).json({
       message: 'Check your mailbox and following the steps to recover your account',
-      data: { token },
+      data: { token }
     });
   } catch (err) {
     next(err);
@@ -125,7 +155,7 @@ export const resetPassword = async (req, resp, next) => {
     user.password = req.body.password;
     await user.save();
     resp.status(200).json({
-      message: 'Your password has been reset',
+      message: 'Your password has been reset'
     });
   } catch (err) {
     next(err);
@@ -154,7 +184,7 @@ export const changePassword = async (req, resp, next) => {
     req.user.password = password;
     await req.user.save();
     resp.status(200).json({
-      message: 'Password has been changed',
+      message: 'Password has been changed'
     });
   } catch (err) {
     next(err);
@@ -174,7 +204,7 @@ export const changeProfile = async (req, resp, next) => {
 
     if (isDuplicate) {
       throw new HttpError(409, 'Email already in use', {
-        email: req.body.email,
+        email: req.body.email
       });
     }
 
@@ -194,8 +224,8 @@ export const changeProfile = async (req, resp, next) => {
     resp.status(200).json({
       message: 'Your profile has been saved',
       data: {
-        user: req.user,
-      },
+        user: req.user
+      }
     });
   } catch (err) {
     next(err);
@@ -206,7 +236,7 @@ export const removeAccount = async (req, resp, next) => {
   try {
     await req.user.remove();
     resp.status(200).json({
-      message: 'Your account has been removed. You can not undo this action.',
+      message: 'Your account has been removed. You can not undo this action.'
     });
   } catch (err) {
     next(err);

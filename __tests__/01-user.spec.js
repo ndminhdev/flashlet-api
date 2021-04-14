@@ -50,6 +50,28 @@ describe('USERS', function () {
     });
   });
 
+  // DEL /v1/users/signout
+  describe('DEL /v1/users/signout', function () {
+    it('should signed out', async function () {
+      const resp = await chai
+        .request(server)
+        .del('/v1/users/signout')
+        .set({ Authorization: `Bearer ${token}` });
+      expect(resp).to.have.status(200);
+    });
+  });
+
+  // DEL /v1/users/signout/all
+  describe('DEL /v1/users/signout/all', function () {
+    it('should signed out from all devices', async function () {
+      const resp = await chai
+        .request(server)
+        .del('/v1/users/signout/all')
+        .set({ Authorization: `Bearer ${token}` });
+      expect(resp).to.have.status(200);
+    });
+  });
+
   let resetToken = '';
 
   // POST /v1/users/password/forgot
