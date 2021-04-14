@@ -42,7 +42,7 @@ export const searchSets = async (req, resp, next) => {
 
   try {
     const $regex = escapeStringRegexp(keyword);
-    const [{ setsCount }] = await Set.aggregate([
+    const agg = await Set.aggregate([
       {
         $match: {
           title: { $regex, $options: 'i' },
@@ -53,9 +53,8 @@ export const searchSets = async (req, resp, next) => {
         $count: 'setsCount'
       }
     ]);
-
+    const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
     const hasNextPage = !(Math.floor(setsCount / limit) + 1 === +page);
-
     const sets = await Set.aggregate([
       {
         $match: {
@@ -124,7 +123,7 @@ export const getMySets = async (req, resp, next) => {
   const { sortBy = 'title', orderBy = 1, limit = 8, page = 1 } = req.query;
 
   try {
-    const [{ setsCount }] = await Set.aggregate([
+    const agg = await Set.aggregate([
       {
         $match: {
           userId: req.user._id
@@ -134,9 +133,8 @@ export const getMySets = async (req, resp, next) => {
         $count: 'setsCount'
       }
     ]);
-
+    const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
     const hasNextPage = Math.floor(setsCount / limit) + 1 === +page;
-
     const sets = await Set.aggregate([
       {
         $match: {
