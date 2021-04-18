@@ -15,6 +15,10 @@ describe('USERS', function () {
     await User.deleteMany({});
   });
 
+  after(async function () {
+    await User.deleteMany({});
+  });
+
   // POST /v1/users/signup
   describe('POST /v1/users/signup', function () {
     it('should create a new user', async function () {

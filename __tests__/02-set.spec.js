@@ -4,6 +4,7 @@ import path from 'path';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 
+import User from '../src/models/user.model';
 import Set from '../src/models/set.model';
 import server from '../src/server';
 const { expect } = chai;
@@ -12,6 +13,11 @@ chai.use(chaiHttp);
 
 describe('SETS', function () {
   before(async function () {
+    await Set.deleteMany({});
+  });
+
+  after(async function () {
+    await User.deleteMany({});
     await Set.deleteMany({});
   });
 
