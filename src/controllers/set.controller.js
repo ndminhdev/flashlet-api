@@ -5,9 +5,11 @@ import HttpError from '../utils/httpError';
 import { setSchema } from '../utils/validate';
 import streamUpload from '../utils/uploader';
 
-// create a new set
+/**
+ * Create a new study set
+ */
 export const createSet = async (req, resp, next) => {
-  const { title, description, isPublic } = req.body;
+  const { title, description, isPublic, cards } = req.body;
 
   try {
     const { errors, value } = await setSchema.validate(req.body);
@@ -20,7 +22,8 @@ export const createSet = async (req, resp, next) => {
       title,
       description,
       userId: req.user._id,
-      isPublic
+      isPublic,
+      cards
     });
 
     await set.save();
@@ -35,7 +38,9 @@ export const createSet = async (req, resp, next) => {
   }
 };
 
-// search sets by title with keyword
+/**
+ * Search sets by title
+ */
 export const searchSets = async (req, resp, next) => {
   const { keyword } = req.params;
   const { sortBy = 'title', orderBy = 1, limit = 8, page = 1 } = req.query;
@@ -117,7 +122,9 @@ export const searchSets = async (req, resp, next) => {
   }
 };
 
-// get my sets
+/**
+ * Get my own sets
+ */
 export const getMySets = async (req, resp, next) => {
   const { sortBy = 'title', orderBy = 1, limit = 8, page = 1 } = req.query;
 
@@ -194,7 +201,9 @@ export const getMySets = async (req, resp, next) => {
   }
 };
 
-// get a set by id
+/**
+ * Get a set by id
+ */
 export const getSetById = async (req, resp, next) => {
   const { setId } = req.params;
 
@@ -220,10 +229,12 @@ export const getSetById = async (req, resp, next) => {
   }
 };
 
-// update a set
+/**
+ * Update a set with its cards
+ */
 export const updateSet = async (req, resp, next) => {
   const { setId } = req.params;
-  const { title, description, isPublic } = req.body;
+  const { title, description, isPublic, cards } = req.body;
 
   try {
     const { errors, value } = await setSchema.validate(req.body);
@@ -241,6 +252,7 @@ export const updateSet = async (req, resp, next) => {
     set.title = title;
     set.description = description;
     set.isPublic = isPublic;
+    set.cards = cards;
 
     await set.save();
     resp.status(200).json({
@@ -254,7 +266,9 @@ export const updateSet = async (req, resp, next) => {
   }
 };
 
-// delete a set
+/**
+ * Delete a set
+ */
 export const deleteSet = async (req, resp, next) => {
   const { setId } = req.params;
 
@@ -275,57 +289,22 @@ export const deleteSet = async (req, resp, next) => {
   }
 };
 
-// add new card to a set
-export const addCard = async (req, resp, next) => {
-  const { setId } = req.params;
-  const { term, definition } = req.body;
-
+/**
+ * Upload card image helper controller
+ */
+export const uploadCardImage = async (req, resp, next) => {
   try {
-    const set = await Set.findById(setId);
-
-    if (!set) {
-      throw new HttpError(404, 'Set is not found');
+    if (!req.file) {
+      throw new HttpError(400, 'No file to upload');
     }
 
-    const card = {
-      term,
-      definition
-    };
-
-    if (req.file) {
-      const file = await streamUpload(req);
-      card.image = file.secure_url;
-    }
-
-    set.cards = set.cards.concat(card);
-    await set.save();
+    const file = await streamUpload(req);
+    const imageUrl = file.secure_url;
     resp.status(201).json({
-      message: 'Card added to set',
+      message: 'Image uploaded',
       data: {
-        card: set.cards[set.cards.length - 1]
+        imageUrl
       }
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-// delete a card from a set
-export const deleteCard = async (req, resp, next) => {
-  const { setId, cardId } = req.params;
-
-  try {
-    const set = await Set.findById(setId);
-
-    if (!set) {
-      throw new HttpError(404, 'Set is not found');
-    }
-
-    await set.cards.id(cardId).remove();
-
-    await set.save();
-    resp.status(200).json({
-      message: 'Card deleted from set'
     });
   } catch (err) {
     next(err);

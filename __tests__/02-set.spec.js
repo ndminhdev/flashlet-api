@@ -56,10 +56,49 @@ describe('SETS', function () {
     });
   });
 
+  let imageUrl;
+
+  // POST /v1/sets/upload-image
+  describe('POST /v1/sets/upload-image', function () {
+    it('should response with image url', async function () {
+      const resp = await chai
+        .request(server)
+        .post('/v1/sets/upload-image')
+        .set({ Authorization: `Bearer ${token}` })
+        .attach('image', fs.readFileSync(path.resolve(__dirname, './photo.jpeg')), 'photo.jpeg');
+
+      expect(resp).to.have.status(201);
+      expect(resp.body.data.imageUrl).to.be.a('string');
+      imageUrl = resp.body.data.imageUrl;
+    });
+  });
+
   const set = {
     title: 'Business Communication Part 1',
     description: 'English words and phrases for business communication',
-    isPublic: true
+    isPublic: true,
+    cards: [
+      {
+        term: 'term 1',
+        definition: 'definition 1',
+        imageUrl
+      },
+      {
+        term: 'term 2',
+        definition: 'definition 2',
+        imageUrl
+      },
+      {
+        term: 'term 3',
+        definition: 'definition 3',
+        imageUrl
+      },
+      {
+        term: 'term 4',
+        definition: 'definition 4',
+        imageUrl
+      }
+    ]
   };
 
   // POST /v1/sets
@@ -91,7 +130,7 @@ describe('SETS', function () {
 
   // GET /v1/sets
   describe('GET /v1/sets', function () {
-    it('should response with user\'s own sets', async function () {
+    it("should response with user's own sets", async function () {
       const resp = await chai
         .request(server)
         .get('/v1/sets')
@@ -117,7 +156,33 @@ describe('SETS', function () {
       const updatedSet = {
         title: 'Business Communication Updated',
         description: 'Description updated',
-        isPublic: false
+        isPublic: false,
+        cards: [
+          {
+            term: 'term 1 updated',
+            definition: 'definition 1 updated',
+            imageUrl:
+              'https://dictionary.cambridge.org/vi/images/thumb/dog_noun_001_04904.jpg?version=5.0.161'
+          },
+          {
+            term: 'term 2',
+            definition: 'definition 2 updated',
+            imageUrl:
+              'https://dictionary.cambridge.org/vi/images/thumb/dog_noun_001_04904.jpg?version=5.0.161'
+          },
+          {
+            term: 'term 3 updated',
+            definition: 'definition 3',
+            imageUrl:
+              'https://dictionary.cambridge.org/vi/images/thumb/dog_noun_001_04904.jpg?version=5.0.161'
+          },
+          {
+            term: 'term 4',
+            definition: 'definition 4 updated',
+            imageUrl:
+              'https://dictionary.cambridge.org/vi/images/thumb/dog_noun_001_04904.jpg?version=5.0.161'
+          }
+        ]
       };
 
       const resp = await chai
@@ -129,39 +194,6 @@ describe('SETS', function () {
       expect(resp.body.data.set.title).to.be.equal(updatedSet.title);
       expect(resp.body.data.set.description).to.be.equal(updatedSet.description);
       expect(resp.body.data.set.isPublic).to.be.equal(updatedSet.isPublic);
-    });
-  });
-
-  const card = {
-    term: 'origin',
-    definition: 'The starting point on the grid'
-  };
-
-  // POST /v1/sets/:setId/cards
-  describe('POST /v1/sets/:setId/cards', function () {
-    it('should add a card to the set', async function () {
-      const resp = await chai
-        .request(server)
-        .post(`/v1/sets/${set._id}/cards`)
-        .set({ Authorization: `Bearer ${token}` })
-        .field('email', card.term)
-        .field('name', card.definition)
-        .attach('image', fs.readFileSync(path.resolve(__dirname, './photo.jpeg')), 'photo.jpeg');
-
-      expect(resp).to.have.status(201);
-      card._id = resp.body.data.card._id;
-    });
-  });
-
-  // DEL /v1/sets/:setId/cards/:cardId
-  describe('DEL /v1/sets/:setId/cards/:cardId', function () {
-    it('should add a card to the set', async function () {
-      const resp = await chai
-        .request(server)
-        .del(`/v1/sets/${set._id}/cards/${card._id}`)
-        .set({ Authorization: `Bearer ${token}` });
-
-      expect(resp).to.have.status(200);
     });
   });
 });

@@ -13,15 +13,10 @@ route.get('/:setId', setControllers.getSetById);
 route.put('/:setId', passport.authenticate('jwt', { session: false }), setControllers.updateSet);
 route.delete('/:setId', passport.authenticate('jwt', { session: false }), setControllers.deleteSet);
 route.post(
-  '/:setId/cards',
+  '/upload-image',
   passport.authenticate('jwt', { session: false }),
   uploader.single('image'),
-  setControllers.addCard
-);
-route.delete(
-  '/:setId/cards/:cardId',
-  passport.authenticate('jwt', { session: false }),
-  setControllers.deleteCard
+  setControllers.uploadCardImage
 );
 
 export default route;

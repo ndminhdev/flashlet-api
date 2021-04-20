@@ -32,7 +32,7 @@ const generateSeed = async () => {
     const card = {
       term: faker.lorem.word(6),
       definition: faker.lorem.words(6),
-      image: faker.image.animals()
+      imageUrl: faker.image.animals()
     };
     exampleCards.push(card);
   }

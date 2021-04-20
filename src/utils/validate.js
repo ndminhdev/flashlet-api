@@ -64,5 +64,6 @@ export const changePasswordSchema = Yup.object().shape({
 export const setSchema = Yup.object().shape({
   title: Yup.string().min(1, 'Title is required').required('Title is required'),
   description: Yup.string().min(1, 'Description is required').required('Description is required'),
-  isPublic: Yup.bool().required('isPublic is required')
+  isPublic: Yup.bool().required('isPublic is required'),
+  cards: Yup.array().min(4, 'Set must be created with at least 4 terms')
 });

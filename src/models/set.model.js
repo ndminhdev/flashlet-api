@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 const cardSchema = new Schema({
   term: String,
   definition: String,
-  image: String
+  imageUrl: String
 });
 
 const setSchema = new Schema(
