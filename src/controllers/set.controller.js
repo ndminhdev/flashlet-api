@@ -55,6 +55,7 @@ export const searchSets = async (req, resp, next) => {
     ]);
     const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
     const hasNextPage = !(Math.floor(setsCount / limit) + 1 === +page);
+
     const sets = await Set.aggregate([
       {
         $match: {
@@ -63,26 +64,24 @@ export const searchSets = async (req, resp, next) => {
         }
       },
       {
-        $project: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          termsCount: { $size: '$cards' },
-          previewTerms: { $slice: ['$cards', 4] },
-          createdAt: 1
-        }
-      },
-      {
         $lookup: {
           from: 'users',
           localField: 'userId',
-          foreignField: 'id',
+          foreignField: '_id',
           as: 'user'
         }
       },
       {
-        $addFields: {
-          user: { $arrayElemAt: ['$user', 0] }
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          termsCount: { $size: '$cards' },
+          previewTerms: { $slice: ['$cards', 4] },
+          user: '$user',
+          createdAt: 1
         }
       },
       {
@@ -142,26 +141,24 @@ export const getMySets = async (req, resp, next) => {
         }
       },
       {
-        $project: {
-          _id: 1,
-          title: 1,
-          description: 1,
-          termsCount: { $size: '$cards' },
-          previewTerms: { $slice: ['$cards', 4] },
-          createdAt: 1
-        }
-      },
-      {
         $lookup: {
           from: 'users',
           localField: 'userId',
-          foreignField: 'id',
+          foreignField: '_id',
           as: 'user'
         }
       },
       {
-        $addFields: {
-          user: { $arrayElemAt: ['$user', 0] }
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          termsCount: { $size: '$cards' },
+          previewTerms: { $slice: ['$cards', 4] },
+          user: '$user',
+          createdAt: 1
         }
       },
       {

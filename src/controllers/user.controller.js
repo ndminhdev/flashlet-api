@@ -15,6 +15,8 @@ import streamUpload from '../utils/uploader';
  * Create account with email, name & password
  */
 export const createAccount = async (req, resp, next) => {
+  const { email, name, password } = req.body;
+
   try {
     const { errors, value } = await createAccountSchema.validate(req.body);
 
@@ -26,13 +28,19 @@ export const createAccount = async (req, resp, next) => {
 
     if (isDuplicate) {
       throw new HttpError(409, 'Email already in use', {
-        email: req.body.email
+        email
       });
     }
 
-    const profileImageDefault = grabProfileImage(req.body.email);
+    const profileImageDefault = grabProfileImage(email);
 
-    const newUser = new User({ ...req.body, profileImageDefault });
+    const newUser = new User({
+      email,
+      name,
+      username: email.split('@')[0],
+      password,
+      profileImageDefault
+    });
 
     await newUser.save();
     resp.status(201).json({

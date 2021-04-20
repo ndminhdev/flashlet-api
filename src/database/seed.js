@@ -17,6 +17,7 @@ const generateSeed = async () => {
     const user = new User({
       email,
       name,
+      username: email.split('@')[0],
       profileImage: faker.image.avatar(),
       profileImageDefault: grabProfileImage(email),
       password: '@6991hniM'

@@ -9,6 +9,7 @@ const userSchema = new Schema(
   {
     email: String,
     name: String,
+    username: String,
     password: String,
 
     profileImage: String,
@@ -18,9 +19,9 @@ const userSchema = new Schema(
 
     tokens: [
       {
-        token: { type: String, required: true },
-      },
-    ],
+        token: { type: String, required: true }
+      }
+    ]
   },
   { timestamps: true }
 );
@@ -37,7 +38,7 @@ userSchema.methods.toJSON = function () {
     email,
     name,
     profileImage,
-    profileImageDefault,
+    profileImageDefault
   };
 };
 
@@ -81,7 +82,7 @@ userSchema.statics.findByEmailAndPassword = async function (email, password) {
   if (!user) {
     throw new HttpError(404, 'No account with this email address', {
       email,
-      password,
+      password
     });
   }
 
@@ -111,7 +112,7 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.methods.generateResetPasswordToken = async function () {
   const user = this;
   const token = jwt.sign({ id: user.id }, RESET_PASSWORD_SECRET, {
-    expiresIn: '30m',
+    expiresIn: '30m'
   });
   user.resetPasswordToken = token;
   await user.save();
