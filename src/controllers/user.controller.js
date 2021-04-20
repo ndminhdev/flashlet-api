@@ -1,4 +1,5 @@
 import User from '../models/user.model';
+import Set from '../models/set.model';
 import {
   createAccountSchema,
   signInSchema,
@@ -100,6 +101,69 @@ export const signOutAll = async (req, resp, next) => {
     await req.user.save();
     resp.status(200).json({
       message: 'Signed out from all devices'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get an user profile
+ */
+export const getUserProfile = async (req, resp, next) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      throw new HttpError(404, 'Username not found', { username });
+    }
+
+    const sets = await Set.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          isPublic: true
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          termsCount: { $size: '$cards' },
+          previewTerms: { $slice: ['$cards', 4] },
+          user: '$user',
+          createdAt: 1
+        }
+      },
+      {
+        $project: {
+          'user.password': 0,
+          'user.tokens': 0,
+          'user.createdAt': 0,
+          'user.updatedAt': 0,
+          'user.__v': 0
+        }
+      }
+    ]);
+    resp.status(200).json({
+      message: 'Get user profile',
+      data: {
+        user,
+        sets
+      }
     });
   } catch (err) {
     next(err);

@@ -14,6 +14,7 @@ route.delete(
   passport.authenticate('jwt', { session: false }),
   userControllers.signOutAll
 );
+route.get('/:username', userControllers.getUserProfile);
 route.post('/password/forgot', userControllers.forgotPassword);
 route.post('/password/reset', userControllers.resetPassword);
 route.post(
