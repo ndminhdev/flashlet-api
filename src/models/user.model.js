@@ -32,10 +32,11 @@ const userSchema = new Schema(
 userSchema.methods.toJSON = function () {
   const user = this;
   const userObj = user.toObject();
-  const { _id, email, name, profileImage, profileImageDefault } = userObj;
+  const { _id, email, username, name, profileImage, profileImageDefault } = userObj;
   return {
     _id,
     email,
+    username,
     name,
     profileImage,
     profileImageDefault

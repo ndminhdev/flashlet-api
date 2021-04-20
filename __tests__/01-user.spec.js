@@ -19,15 +19,15 @@ describe('USERS', function () {
     await User.deleteMany({});
   });
 
+  const user = {
+    email: 'ndminhdev@gmail.com',
+    name: 'Dang Minh',
+    password: '@6991hniM'
+  };
+
   // POST /v1/users/signup
   describe('POST /v1/users/signup', function () {
     it('should create a new user', async function () {
-      const user = {
-        email: 'ndminhdev@gmail.com',
-        name: 'Dang Minh',
-        password: '@6991hniM'
-      };
-
       const resp = await chai.request(server).post('/v1/users/signup').send(user);
       expect(resp).to.have.status(201);
       expect(resp.body.message).to.be.a('string');
@@ -39,18 +39,18 @@ describe('USERS', function () {
 
   // POST /v1/users/signin
   describe('POST /v1/users/signin', function () {
+    const { email, password } = user;
     it('should sign in with email and password', async function () {
-      const user = {
-        email: 'ndminhdev@gmail.com',
-        password: '@6991hniM'
-      };
-
-      const resp = await chai.request(server).post('/v1/users/signin').send(user);
+      const resp = await chai.request(server).post('/v1/users/signin').send({
+        email,
+        password
+      });
       expect(resp).to.have.status(200);
       expect(resp.body.message).to.be.a('string');
       expect(resp.body.data.token).not.to.be.empty;
       expect(resp.body.data.user.email).to.be.equal(user.email);
       token = resp.body.data.token;
+      user.username = resp.body.data.user.username;
     });
   });
 
@@ -73,6 +73,17 @@ describe('USERS', function () {
         .del('/v1/users/signout/all')
         .set({ Authorization: `Bearer ${token}` });
       expect(resp).to.have.status(200);
+    });
+  });
+
+  // GET /v1/users/:username
+  describe('GET /v1/users/:username', function () {
+    it('should response with user profile and his/her own public sets', async function () {
+      const resp = await chai.request(server).get(`/v1/users/${user.username}`);
+      expect(resp).to.have.status(200);
+      expect(resp.body.data.user.email).to.be.equal(user.email);
+      expect(resp.body.data.user.username).to.be.equal(user.username);
+      expect(resp.body.data.sets).to.be.a('array');
     });
   });
 

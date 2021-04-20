@@ -11,7 +11,7 @@ const generateSeed = async () => {
   const userIds = [];
 
   for (let i = 0; i < 10; i++) {
-    const email = faker.internet.email();
+    const email = `testuser_${i}@gmail.com`;
     const name = faker.fake('{{name.firstName}} {{name.lastName}}');
 
     const user = new User({
