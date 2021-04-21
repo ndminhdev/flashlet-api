@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 
 const cardSchema = new Schema({
+  _id: false,
   term: String,
   definition: String,
   imageUrl: String
