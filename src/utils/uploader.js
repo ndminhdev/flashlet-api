@@ -11,7 +11,7 @@ export const uploader = multer();
 cloudinary.v2.config({
   cloud_name: CLOUD_NAME,
   api_key: CLOUD_KEY,
-  api_secret: CLOUD_SECRET,
+  api_secret: CLOUD_SECRET
 });
 
 /**
@@ -21,7 +21,7 @@ const streamUpload = (req) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.v2.uploader.upload_stream(
       {
-        folder: 'flashlet/profiles',
+        folder: 'flashlet/profiles'
       },
       (error, result) => {
         if (result) {
@@ -34,6 +34,13 @@ const streamUpload = (req) => {
 
     streamifier.createReadStream(req.file.buffer).pipe(stream);
   });
+};
+
+/**
+ * Delete cloudinary file
+ */
+export const deleteFile = async (public_id) => {
+  await cloudinary.v2.uploader.destroy(public_id);
 };
 
 export default streamUpload;

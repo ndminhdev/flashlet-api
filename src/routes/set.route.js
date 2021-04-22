@@ -6,17 +6,36 @@ import * as setControllers from '../controllers/set.controller';
 
 const route = new Router();
 
-route.post('/', passport.authenticate('jwt', { session: false }), setControllers.createSet);
-route.get('/subject/:keyword', setControllers.searchSets);
-route.get('/', passport.authenticate('jwt', { session: false }), setControllers.getMySets);
-route.get('/:setId', setControllers.getSetById);
-route.put('/:setId', passport.authenticate('jwt', { session: false }), setControllers.updateSet);
-route.delete('/:setId', passport.authenticate('jwt', { session: false }), setControllers.deleteSet);
+route.post('/sets', passport.authenticate('jwt', { session: false }), setControllers.createSet);
+route.get('/sets/subject/:keyword', setControllers.searchSets);
+route.get('/sets', passport.authenticate('jwt', { session: false }), setControllers.getMySets);
+route.get('/sets/:setId', setControllers.getSetById);
+route.put(
+  '/sets/:setId',
+  passport.authenticate('jwt', { session: false }),
+  setControllers.updateSet
+);
+route.delete(
+  '/sets/:setId',
+  passport.authenticate('jwt', { session: false }),
+  setControllers.deleteSet
+);
 route.post(
-  '/upload-image',
+  '/:setId/cards',
   passport.authenticate('jwt', { session: false }),
   uploader.single('image'),
-  setControllers.uploadCardImage
+  setControllers.addCard
+);
+route.put(
+  '/cards/:cardId',
+  passport.authenticate('jwt', { session: false }),
+  uploader.single('image'),
+  setControllers.editCard
+);
+route.delete(
+  '/cards/:cardId',
+  passport.authenticate('jwt', { session: false }),
+  setControllers.removeCard
 );
 
 export default route;

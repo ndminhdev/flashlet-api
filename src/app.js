@@ -35,6 +35,6 @@ import setRoutes from './routes/set.route';
 
 // Primary app routes
 app.use('/v1/users', userRoutes);
-app.use('/v1/sets', setRoutes);
+app.use('/v1', setRoutes);
 
 export default app;

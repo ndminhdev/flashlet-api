@@ -2,11 +2,13 @@ import faker from 'faker';
 
 import User from '../models/user.model';
 import Set from '../models/set.model';
+import Card from '../models/card.model';
 import grabProfileImage from '../utils/grabProfileImage';
 
 const generateSeed = async () => {
   await User.deleteMany({});
   await Set.deleteMany({});
+  await Card.deleteMany({});
 
   const userIds = [];
 
@@ -26,27 +28,26 @@ const generateSeed = async () => {
     userIds.push(user._id);
   }
 
-  const exampleCards = [];
-
-  for (let i = 0; i < 10; i++) {
-    const card = {
-      term: faker.lorem.word(6),
-      definition: faker.lorem.words(6),
-      imageUrl: faker.image.animals()
-    };
-    exampleCards.push(card);
-  }
-
   for (let i = 0; i < 100; i++) {
     const set = new Set({
       title: faker.name.title(),
       description: faker.lorem.words(8),
       userId: faker.random.arrayElement(userIds),
-      isPublic: faker.datatype.boolean(),
-      cards: exampleCards
+      isPublic: faker.datatype.boolean()
     });
 
     await set.save();
+
+    for (let j = 0; j < 10; j++) {
+      const card = new Card({
+        term: faker.lorem.word(),
+        definition: faker.lorem.words(8),
+        imageUrl: faker.image.animals(),
+        setId: set._id
+      });
+
+      await card.save();
+    }
   }
 };
 

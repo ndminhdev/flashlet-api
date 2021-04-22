@@ -1,15 +1,17 @@
+import { Types } from 'mongoose';
 import escapeStringRegexp from 'escape-string-regexp';
 
 import Set from '../models/set.model';
+import Card from '../models/card.model';
 import HttpError from '../utils/httpError';
-import { setSchema } from '../utils/validate';
-import streamUpload from '../utils/uploader';
+import { setSchema, cardSchema } from '../utils/validate';
+import streamUpload, { deleteFile } from '../utils/uploader';
 
 /**
  * Create a new study set
  */
 export const createSet = async (req, resp, next) => {
-  const { title, description, isPublic, cards } = req.body;
+  const { title, description, isPublic } = req.body;
 
   try {
     const { errors, value } = await setSchema.validate(req.body);
@@ -22,8 +24,7 @@ export const createSet = async (req, resp, next) => {
       title,
       description,
       userId: req.user._id,
-      isPublic,
-      cards
+      isPublic
     });
 
     await set.save();
@@ -80,12 +81,20 @@ export const searchSets = async (req, resp, next) => {
         $unwind: '$user'
       },
       {
+        $lookup: {
+          from: 'cards',
+          localField: '_id',
+          foreignField: 'setId',
+          as: 'cards'
+        }
+      },
+      {
         $project: {
           title: 1,
           description: 1,
+          user: '$user',
           termsCount: { $size: '$cards' },
           previewTerms: { $slice: ['$cards', 4] },
-          user: '$user',
           createdAt: 1
         }
       },
@@ -95,7 +104,8 @@ export const searchSets = async (req, resp, next) => {
           'user.tokens': 0,
           'user.createdAt': 0,
           'user.updatedAt': 0,
-          'user.__v': 0
+          'user.__v': 0,
+          'previewTerms.__v': 0
         }
       },
       {
@@ -159,11 +169,20 @@ export const getMySets = async (req, resp, next) => {
         $unwind: '$user'
       },
       {
+        $lookup: {
+          from: 'cards',
+          localField: '_id',
+          foreignField: 'setId',
+          as: 'cards'
+        }
+      },
+      {
         $project: {
           title: 1,
           description: 1,
           termsCount: { $size: '$cards' },
           previewTerms: { $slice: ['$cards', 4] },
+          isPublic: 1,
           user: '$user',
           createdAt: 1
         }
@@ -174,7 +193,8 @@ export const getMySets = async (req, resp, next) => {
           'user.tokens': 0,
           'user.createdAt': 0,
           'user.updatedAt': 0,
-          'user.__v': 0
+          'user.__v': 0,
+          'previewTerms.__v': 0
         }
       },
       {
@@ -208,11 +228,54 @@ export const getSetById = async (req, resp, next) => {
   const { setId } = req.params;
 
   try {
-    const set = await Set.findById(setId);
+    const agg = await Set.aggregate([
+      {
+        $match: {
+          _id: Types.ObjectId(setId)
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $lookup: {
+          from: 'cards',
+          localField: '_id',
+          foreignField: 'setId',
+          as: 'cards'
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          termsCount: { $size: '$cards' },
+          cards: '$cards',
+          user: '$user',
+          createdAt: 1
+        }
+      },
+      {
+        $project: {
+          'user.password': 0,
+          'user.tokens': 0,
+          'user.createdAt': 0,
+          'user.updatedAt': 0,
+          'user.__v': 0,
+          'cards.__v': 0
+        }
+      }
+    ]);
 
-    if (req.user && !set.isPublic) {
-      throw new HttpError(403, 'You cannot access this set');
-    }
+    const set = agg[0];
 
     if (!set) {
       throw new HttpError(404, 'Set is not found');
@@ -234,7 +297,7 @@ export const getSetById = async (req, resp, next) => {
  */
 export const updateSet = async (req, resp, next) => {
   const { setId } = req.params;
-  const { title, description, isPublic, cards } = req.body;
+  const { title, description, isPublic } = req.body;
 
   try {
     const { errors, value } = await setSchema.validate(req.body);
@@ -243,16 +306,15 @@ export const updateSet = async (req, resp, next) => {
       throw new HttpError(422, errors[0], value);
     }
 
-    const set = await Set.findById(setId);
+    const set = await Set.findOne({ _id: setId, userId: req.user._id });
 
     if (!set) {
-      throw new HttpError(404, 'Set is not found');
+      throw new HttpError(404, 'Set is not found or You can access this set');
     }
 
     set.title = title;
     set.description = description;
     set.isPublic = isPublic;
-    set.cards = cards;
 
     await set.save();
     resp.status(200).json({
@@ -273,13 +335,12 @@ export const deleteSet = async (req, resp, next) => {
   const { setId } = req.params;
 
   try {
-    const { errors, value } = await setSchema.validate(req.body);
+    const set = await Set.findOne({ _id: setId, userId: req.user._id });
 
-    if (errors) {
-      throw new HttpError(422, errors[0], value);
+    if (!set) {
+      throw new HttpError(404, 'Set is not found or You can access this set');
     }
 
-    const set = await Set.findById(setId);
     await set.remove();
     resp.status(200).json({
       message: 'Your set has been deleted'
@@ -290,21 +351,99 @@ export const deleteSet = async (req, resp, next) => {
 };
 
 /**
- * Upload card image helper controller
+ * Add a card to set
  */
-export const uploadCardImage = async (req, resp, next) => {
+export const addCard = async (req, resp, next) => {
+  const { setId } = req.params;
+  const { term, definition } = req.body;
+
   try {
-    if (!req.file) {
-      throw new HttpError(400, 'No file to upload');
+    const { errors, value } = await cardSchema.validate(req.body);
+
+    if (errors) {
+      throw new HttpError(422, errors[0], value);
     }
 
-    const file = await streamUpload(req);
-    const imageUrl = file.secure_url;
+    const set = await Set.findById(setId);
+
+    if (!set) {
+      throw new HttpError(404, 'Set is not found');
+    }
+
+    const card = new Card({
+      term,
+      definition,
+      setId: set._id
+    });
+
+    if (req.file) {
+      const file = await streamUpload(req);
+      card.imageUrl = file.secure_url;
+    }
+
+    await card.save();
     resp.status(201).json({
-      message: 'Image uploaded',
+      message: 'Card created',
       data: {
-        imageUrl
+        card
       }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Edit a card
+ */
+export const editCard = async (req, resp, next) => {
+  const { cardId } = req.params;
+  const { term, definition } = req.body;
+
+  try {
+    const { errors, value } = await cardSchema.validate(req.body);
+
+    if (errors) {
+      throw new HttpError(422, errors[0], value);
+    }
+
+    const card = await Card.findById(cardId);
+    card.term = term;
+    card.definition = definition;
+
+    if (req.file) {
+      // eslint-disable-next-line no-useless-escape
+      const regex = /[\/\.]/i;
+      const index = card.imageUrl.split(regex).length - 2;
+      const publicId = card.imageUrl.split(regex)[index];
+      const data = await streamUpload(req);
+      card.imageUrl = data.secure_url;
+      await deleteFile(publicId);
+    }
+
+    await card.save();
+    resp.status(200).json({
+      message: 'Card saved',
+      data: {
+        card
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Remove a card from set
+ */
+export const removeCard = async (req, resp, next) => {
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findById(cardId);
+    await card.remove();
+    resp.status(200).json({
+      message: 'Card removed'
     });
   } catch (err) {
     next(err);
