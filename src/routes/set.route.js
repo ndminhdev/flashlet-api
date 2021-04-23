@@ -21,7 +21,7 @@ route.delete(
   setControllers.deleteSet
 );
 route.post(
-  '/:setId/cards',
+  '/sets/:setId/cards',
   passport.authenticate('jwt', { session: false }),
   uploader.single('image'),
   setControllers.addCard
