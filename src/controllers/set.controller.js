@@ -358,16 +358,16 @@ export const addCard = async (req, resp, next) => {
   const { term, definition } = req.body;
 
   try {
-    const { errors, value } = await cardSchema.validate(req.body);
-
-    if (errors) {
-      throw new HttpError(422, errors[0], value);
-    }
-
     const set = await Set.findById(setId);
 
     if (!set) {
       throw new HttpError(404, 'Set is not found');
+    }
+
+    const { errors, value } = await cardSchema.validate(req.body);
+
+    if (errors) {
+      throw new HttpError(422, errors[0], value);
     }
 
     const card = new Card({
