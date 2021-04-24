@@ -412,13 +412,15 @@ export const editCard = async (req, resp, next) => {
     card.definition = definition;
 
     if (req.file) {
-      // eslint-disable-next-line no-useless-escape
-      const regex = /[\/\.]/i;
-      const index = card.imageUrl.split(regex).length - 2;
-      const publicId = card.imageUrl.split(regex)[index];
+      if (card.imageUrl) {
+        // eslint-disable-next-line no-useless-escape
+        const regex = /[\/\.]/i;
+        const index = card.imageUrl.split(regex).length - 2;
+        const publicId = card.imageUrl.split(regex)[index];
+        await deleteFile(publicId);
+      }
       const data = await streamUpload(req);
       card.imageUrl = data.secure_url;
-      await deleteFile(publicId);
     }
 
     await card.save();

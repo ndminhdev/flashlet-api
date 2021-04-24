@@ -42,7 +42,7 @@ const generateSeed = async () => {
       const card = new Card({
         term: faker.lorem.word(),
         definition: faker.lorem.words(8),
-        imageUrl: faker.image.animals(),
+        imageUrl: `https://picsum.photos/id/${faker.datatype.number(300)}/200/300`,
         setId: set._id
       });
 
