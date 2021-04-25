@@ -139,11 +139,20 @@ export const getUserProfile = async (req, resp, next) => {
         $unwind: '$user'
       },
       {
+        $lookup: {
+          from: 'cards',
+          localField: '_id',
+          foreignField: 'setId',
+          as: 'cards'
+        }
+      },
+      {
         $project: {
           title: 1,
           description: 1,
+          isPublic: 1,
           termsCount: { $size: '$cards' },
-          previewTerms: { $slice: ['$cards', 4] },
+          cards: '$cards',
           user: '$user',
           createdAt: 1
         }
@@ -154,7 +163,8 @@ export const getUserProfile = async (req, resp, next) => {
           'user.tokens': 0,
           'user.createdAt': 0,
           'user.updatedAt': 0,
-          'user.__v': 0
+          'user.__v': 0,
+          'cards.__v': 0
         }
       }
     ]);

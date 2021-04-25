@@ -257,6 +257,7 @@ export const getSetById = async (req, resp, next) => {
         $project: {
           title: 1,
           description: 1,
+          isPublic: 1,
           termsCount: { $size: '$cards' },
           cards: '$cards',
           user: '$user',
