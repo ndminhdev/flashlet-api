@@ -15,6 +15,7 @@ route.delete(
   userControllers.signOutAll
 );
 route.get('/:username', userControllers.getUserProfile);
+route.get('/:username/sets', userControllers.getPublicSetsOfAnUser);
 route.post('/password/forgot', userControllers.forgotPassword);
 route.post('/password/reset', userControllers.resetPassword);
 route.post(

@@ -60,7 +60,11 @@ export const searchSets = async (req, resp, next) => {
       }
     ]);
     const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
-    const hasNextPage = !(Math.floor(setsCount / limit) + 1 === +page);
+    const totalPage =
+      setsCount % +limit === 0
+        ? Math.floor(setsCount / +limit)
+        : Math.floor(setsCount / +limit) + 1;
+    const hasNextPage = +page < totalPage;
 
     const sets = await Set.aggregate([
       {
@@ -150,7 +154,11 @@ export const getMySets = async (req, resp, next) => {
       }
     ]);
     const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
-    const hasNextPage = Math.floor(setsCount / limit) + 1 === +page;
+    const totalPage =
+      setsCount % +limit === 0
+        ? Math.floor(setsCount / +limit)
+        : Math.floor(setsCount / +limit) + 1;
+    const hasNextPage = +page < totalPage;
     const sets = await Set.aggregate([
       {
         $match: {

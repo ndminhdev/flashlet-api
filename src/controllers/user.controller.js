@@ -120,6 +120,48 @@ export const getUserProfile = async (req, resp, next) => {
       throw new HttpError(404, 'Username not found', { username });
     }
 
+    resp.status(200).json({
+      message: 'Get user profile',
+      data: {
+        user
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get public sets of an user with userId
+ */
+export const getPublicSetsOfAnUser = async (req, resp, next) => {
+  const { username } = req.params;
+  const { sortBy = 'title', orderBy = 1, limit = 8, page = 1 } = req.query;
+
+  try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      throw new HttpError(404, 'User is not found');
+    }
+
+    const agg = await Set.aggregate([
+      {
+        $match: {
+          userId: user._id,
+          isPublic: true
+        }
+      },
+      {
+        $count: 'setsCount'
+      }
+    ]);
+    const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
+    const totalPage =
+      setsCount % +limit === 0
+        ? Math.floor(setsCount / +limit)
+        : Math.floor(setsCount / +limit) + 1;
+    const hasNextPage = +page < totalPage;
     const sets = await Set.aggregate([
       {
         $match: {
@@ -150,9 +192,9 @@ export const getUserProfile = async (req, resp, next) => {
         $project: {
           title: 1,
           description: 1,
-          isPublic: 1,
           termsCount: { $size: '$cards' },
-          cards: '$cards',
+          previewTerms: { $slice: ['$cards', 4] },
+          isPublic: 1,
           user: '$user',
           createdAt: 1
         }
@@ -164,14 +206,25 @@ export const getUserProfile = async (req, resp, next) => {
           'user.createdAt': 0,
           'user.updatedAt': 0,
           'user.__v': 0,
-          'cards.__v': 0
+          'previewTerms.__v': 0
         }
+      },
+      {
+        $sort: { [sortBy]: +orderBy }
+      },
+      {
+        $skip: (+page - 1) * +limit
+      },
+      {
+        $limit: +limit
       }
     ]);
+
     resp.status(200).json({
-      message: 'Get user profile',
+      message: 'Get my sets',
       data: {
-        user,
+        hasNextPage,
+        setsCount,
         sets
       }
     });
