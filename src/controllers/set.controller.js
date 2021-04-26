@@ -417,6 +417,12 @@ export const editCard = async (req, resp, next) => {
     }
 
     const card = await Card.findById(cardId);
+    const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
+
+    if (!set) {
+      throw new HttpError(401, 'You cannot access this feature');
+    }
+
     card.term = term;
     card.definition = definition;
 
@@ -452,9 +458,34 @@ export const removeCard = async (req, resp, next) => {
 
   try {
     const card = await Card.findById(cardId);
+    const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
+
+    if (!set) {
+      throw new HttpError(401, 'You cannot access this feature');
+    }
+
     await card.remove();
     resp.status(200).json({
       message: 'Card removed'
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Check a set belongs to signed in user
+ */
+export const checkSetOwner = async (req, resp, next) => {
+  const { setId } = req.params;
+
+  try {
+    const set = await Set.findOne({ _id: setId, userId: req.user._id });
+
+    resp.status(200).json({
+      data: {
+        result: !!set
+      }
     });
   } catch (err) {
     next(err);

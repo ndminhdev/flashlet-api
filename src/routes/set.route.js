@@ -37,5 +37,10 @@ route.delete(
   passport.authenticate('jwt', { session: false }),
   setControllers.removeCard
 );
+route.get(
+  '/sets/check/:setId',
+  passport.authenticate('jwt', { session: false }),
+  setControllers.checkSetOwner
+);
 
 export default route;
