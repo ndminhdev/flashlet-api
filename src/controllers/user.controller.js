@@ -206,6 +206,7 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
           'user.createdAt': 0,
           'user.updatedAt': 0,
           'user.__v': 0,
+          'previewTerms.setId': 0,
           'previewTerms.__v': 0
         }
       },

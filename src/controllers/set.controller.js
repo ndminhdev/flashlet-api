@@ -109,6 +109,7 @@ export const searchSets = async (req, resp, next) => {
           'user.createdAt': 0,
           'user.updatedAt': 0,
           'user.__v': 0,
+          'previewTerms.setId': 0,
           'previewTerms.__v': 0
         }
       },
@@ -202,6 +203,7 @@ export const getMySets = async (req, resp, next) => {
           'user.createdAt': 0,
           'user.updatedAt': 0,
           'user.__v': 0,
+          'previewTerms.setId': 0,
           'previewTerms.__v': 0
         }
       },
@@ -279,6 +281,7 @@ export const getSetById = async (req, resp, next) => {
           'user.createdAt': 0,
           'user.updatedAt': 0,
           'user.__v': 0,
+          'cards.setId': 0,
           'cards.__v': 0
         }
       }
