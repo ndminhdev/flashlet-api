@@ -32,9 +32,11 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 import userRoutes from './routes/user.route';
 import setRoutes from './routes/set.route';
+import preferenceRoutes from './routes/preference.route';
 
 // Primary app routes
 app.use('/v1/users', userRoutes);
 app.use('/v1', setRoutes);
+app.use('/v1/preferences', preferenceRoutes);
 
 export default app;
