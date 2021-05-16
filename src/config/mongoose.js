@@ -2,9 +2,9 @@ import mongoose from 'mongoose';
 import logger from '../utils/logger';
 import { mode, MONGO_URI } from '../utils/secrets';
 
-import generateSeed from './seed';
+import generateSeed from '../database/seed';
 
-(async () => {
+const mongooseConnect = async () => {
   try {
     await mongoose.connect(MONGO_URI, {
       useCreateIndex: true,
@@ -21,4 +21,6 @@ import generateSeed from './seed';
     logger.error('Make sure MongoDB instance is running');
     logger.error(err.message);
   }
-})();
+};
+
+export default mongooseConnect;

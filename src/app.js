@@ -5,12 +5,13 @@ import cors from 'cors';
 import passport from 'passport';
 
 import { PORT } from './utils/secrets';
+import mongooseConnect from './config/mongoose';
 import configurePassportAuth from './config/passport';
 
 const app = express();
 
 // mongoose connect
-import './database/mongoose';
+mongooseConnect();
 
 // configure passport
 configurePassportAuth(passport);
