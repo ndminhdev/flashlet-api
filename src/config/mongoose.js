@@ -4,23 +4,21 @@ import { mode, MONGO_URI } from '../utils/secrets';
 
 import generateSeed from '../database/seed';
 
-const mongooseConnect = async () => {
-  try {
-    await mongoose.connect(MONGO_URI, {
-      useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
-    logger.debug('MongoDB connected.');
-
-    if (mode !== 'production') {
-      await generateSeed();
-      logger.debug('Generate database seeds');
-    }
-  } catch (err) {
-    logger.error('Make sure MongoDB instance is running');
-    logger.error(err.message);
-  }
+const mongooseConnect = () => {
+  return mongoose.connect(MONGO_URI, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+    .then(() => {
+      logger.debug('MongoDB connected.');
+      generateSeed().then(() => logger.debug('Generate database seeds'));
+    })
+    .catch((err) => {
+      logger.error('Retry in 5 sec. Make sure MongoDB instance is running');
+      logger.error(err.message);
+      setTimeout(mongooseConnect, 5000);
+    })
 };
 
 export default mongooseConnect;

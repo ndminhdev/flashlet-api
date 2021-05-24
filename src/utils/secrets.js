@@ -1,14 +1,14 @@
-import fs from 'fs';
-import dotenv from 'dotenv';
-import logger from './logger';
+// import fs from 'fs';
+// import dotenv from 'dotenv';
+// import logger from './logger';
 
-if (fs.existsSync('.env.production')) {
-  logger.debug('Using .env.production for environment variables');
-  dotenv.config({ path: '.env.production' });
-} else {
-  logger.debug('Using .env.development for environment variables');
-  dotenv.config({ path: '.env.development' });
-}
+// if (fs.existsSync('.env.production')) {
+//   logger.debug('Using .env.production for environment variables');
+//   dotenv.config({ path: '.env.production' });
+// } else {
+//   logger.debug('Using .env.development for environment variables');
+//   dotenv.config({ path: '.env.development' });
+// }
 
 // dev server
 export const PORT = process.env.PORT || 8080;
@@ -45,18 +45,16 @@ if (!SALT_ROUNDS) {
 }
 
 // uri
-export const MONGO_URI = isProd
-  ? process.env.MONGO_URI
-  : process.env.MONGO_URI_LOCAL;
+const MONGO_HOST = process.env.MONGO_HOST || 'localhost';
+const MONGO_PORT = process.env.MONGO_PORT || 27017;
+const MONGO_DB = process.env.MONGO_DB;
 
-if (!MONGO_URI) {
-  if (isProd) {
-    logger.error('No MongoDB connection string. Please set MONGO_URI.');
-  } else {
-    logger.error('No MongoDB connection string. Please set MONGO_URI_LOCAL.');
-  }
+if (!MONGO_DB) {
+  logger.error('No mongodb database name. Please set MONGO_DB');
   process.exit(1);
 }
+
+export const MONGO_URI = `mongodb://${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}`;
 
 // sendgrid api key
 export const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
@@ -75,3 +73,7 @@ if (!CLOUD_NAME || !CLOUD_KEY || !CLOUD_SECRET) {
   logger.error('Missing cloudinary configs. Please set them.');
   process.exit(1);
 }
+
+// redis configurations
+export const REDIS_PORT = process.env.REDIS_PORT || 6379;
+export const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';

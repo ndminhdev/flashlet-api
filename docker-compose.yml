@@ -1,0 +1,42 @@
+version: "3.0"
+
+services:
+  app:
+    image: wuallanx:flashlet
+    # env_file:
+    #   - .env.production
+    # volumes:
+    #   - ./:/app
+    environment:
+      - PORT=${PORT}
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DB=${MONGO_DB}
+      - JWT_SECRET=${JWT_SECRET}
+      - RESET_PASSWORD_SECRET=${RESET_PASSWORD_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - CLOUD_NAME=${CLOUD_NAME}
+      - CLOUD_KEY=${CLOUD_KEY}
+      - CLOUD_SECRET=${CLOUD_SECRET}
+      - REDIS_HOST=redis
+      - REDIS_PORT=${REDIS_PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    restart: "unless-stopped"
+    depends_on:
+      - mongodb
+      - redis
+  
+  mongodb:
+    image: mongo
+    volumes:
+      - ./docker/data/db:/data/db
+    ports:
+      - "27017:27017"
+    restart: "unless-stopped"
+  
+  redis:
+    image: redis:5.0-alpine
+    volumes:
+      - ./docker/data/redis:/data
+    restart: "unless-stopped"

@@ -44,3 +44,6 @@ package-lock.json
 
 # ignore eslintcache
 .eslintcache
+
+# ignore docker data
+docker
