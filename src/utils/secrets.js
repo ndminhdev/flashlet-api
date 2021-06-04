@@ -1,15 +1,3 @@
-// import fs from 'fs';
-// import dotenv from 'dotenv';
-// import logger from './logger';
-
-// if (fs.existsSync('.env.production')) {
-//   logger.debug('Using .env.production for environment variables');
-//   dotenv.config({ path: '.env.production' });
-// } else {
-//   logger.debug('Using .env.development for environment variables');
-//   dotenv.config({ path: '.env.development' });
-// }
-
 // dev server
 export const PORT = process.env.PORT || 8080;
 

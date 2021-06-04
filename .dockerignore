@@ -6,4 +6,7 @@ build/
 .gitignore
 .dockerignore
 *.md
+Dockerfile*
+docker
+docker-compose*.yml
 

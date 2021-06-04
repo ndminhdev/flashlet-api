@@ -10,7 +10,7 @@ services:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - PORT=${PORT}
       - MONGO_HOST=mongodb
       - MONGO_PORT=${MONGO_PORT}
@@ -33,7 +33,7 @@ services:
   mongodb:
     image: mongo
     volumes:
-      - ./docker/data/db:/data/db
+      - /data/db:/data/db
     ports:
       - "27017:27017"
     restart: "unless-stopped"
@@ -41,5 +41,5 @@ services:
   redis:
     image: redis:5.0-alpine
     volumes:
-      - ./docker/data/redis:/data
+      - /data/redis:/data
     restart: "unless-stopped"
