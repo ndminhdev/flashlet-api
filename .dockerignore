@@ -4,5 +4,6 @@ build/
 .env.example
 .git/
 .gitignore
+.dockerignore
 *.md
 

@@ -21,8 +21,7 @@ dist
 coverage
 
 # API keys and secrets
-.env.production
-.env.development
+.env
 
 # Dependency directory
 node_modules
