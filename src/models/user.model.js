@@ -17,6 +17,9 @@ const userSchema = new Schema(
 
     resetPasswordToken: String,
 
+    googleId: String,
+    googleAccessToken: String,
+
     tokens: [
       {
         token: { type: String, required: true }

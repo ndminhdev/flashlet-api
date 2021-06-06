@@ -78,6 +78,51 @@ export const signIn = async (req, resp, next) => {
 };
 
 /**
+ * Sign in with Google
+ */
+export const signInWithGoogle = async (req, resp, next) => {
+  const { googleId, googleAccessToken, googleProfile } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ googleId });
+
+    if (existingUser) {
+      existingUser.googleAccessToken = googleAccessToken;
+      const token = await existingUser.generateAuthToken();
+      return resp.status(200).json({
+        message: 'Sign in with Google',
+        data: {
+          user: existingUser,
+          token
+        }
+      });
+    }
+
+    const newUser = new User({
+      email: googleProfile.email,
+      name: googleProfile.name,
+      username: googleProfile.email.split('@')[0],
+      profileImageDefault: googleProfile.imageUrl,
+      googleId,
+      googleAccessToken
+    });
+
+    await newUser.save();
+    const token = await newUser.generateAuthToken();
+
+    resp.status(200).json({
+      message: 'Sign in with Google',
+      data: {
+        user: newUser,
+        token
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Sign out
  */
 export const signOut = async (req, resp, next) => {
