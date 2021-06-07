@@ -89,6 +89,7 @@ export const signInWithGoogle = async (req, resp, next) => {
     if (existingUser) {
       existingUser.googleAccessToken = googleAccessToken;
       const token = await existingUser.generateAuthToken();
+      await existingUser.save();
       return resp.status(200).json({
         message: 'Sign in with Google',
         data: {
@@ -102,14 +103,13 @@ export const signInWithGoogle = async (req, resp, next) => {
       email: googleProfile.email,
       name: googleProfile.name,
       username: googleProfile.email.split('@')[0],
-      profileImageDefault: googleProfile.imageUrl,
+      profileImage: googleProfile.imageUrl,
       googleId,
       googleAccessToken
     });
-
-    await newUser.save();
     const token = await newUser.generateAuthToken();
 
+    await newUser.save();
     resp.status(200).json({
       message: 'Sign in with Google',
       data: {
