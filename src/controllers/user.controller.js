@@ -25,9 +25,24 @@ export const createAccount = async (req, resp, next) => {
       throw new HttpError(422, errors[0], value);
     }
 
-    const isDuplicate = await User.checkDuplicate(req.body.email);
+    const existingUser = await User.findOne({ email });
 
-    if (isDuplicate) {
+    // there is a google/facebook account with this email
+    if (existingUser.googleId || existingUser.facebookId) {
+      existingUser.email = email;
+      existingUser.name = name;
+      existingUser.password = password;
+      await existingUser.save();
+      return resp.status(200).json({
+        message: 'Create a local account with this email',
+        data: {
+          user: existingUser
+        }
+      });
+    }
+
+    // there is a local account already registered
+    if (existingUser) {
       throw new HttpError(409, 'Email already in use', {
         email
       });

@@ -19,6 +19,8 @@ const userSchema = new Schema(
 
     googleId: String,
     googleAccessToken: String,
+    facebookId: String,
+    facebookAccessToken: String,
 
     tokens: [
       {
@@ -69,13 +71,13 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return matchPassword;
 };
 
-/**
- * Check duplicate email
- */
-userSchema.statics.checkDuplicate = async function (email) {
-  const user = await User.findOne({ email });
-  return !!user;
-};
+// /**
+//  * Check duplicate email
+//  */
+// userSchema.statics.checkDuplicate = async function (email) {
+//   const user = await User.findOne({ email });
+//   return !!user;
+// };
 
 /**
  * Find an user by email and password
