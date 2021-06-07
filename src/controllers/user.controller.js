@@ -443,9 +443,9 @@ export const changeProfile = async (req, resp, next) => {
   const updateFields = fields.filter((f) => validTextFields.includes(f));
 
   try {
-    const isDuplicate = await User.checkDuplicate(req.body.email);
+    const existingUser = await User.findOne({ email: req.body.email });
 
-    if (isDuplicate) {
+    if (existingUser) {
       throw new HttpError(409, 'Email already in use', {
         email: req.body.email
       });
