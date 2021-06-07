@@ -139,6 +139,52 @@ export const signInWithGoogle = async (req, resp, next) => {
 };
 
 /**
+ * Sign in with Facebook
+ */
+export const signInWithFacebook = async (req, resp, next) => {
+  const { facebookId, facebookAccessToken, facebookProfile } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ facebookId });
+
+    if (existingUser) {
+      existingUser.facebookAccessToken = facebookAccessToken;
+      const token = await existingUser.generateAuthToken();
+      await existingUser.save();
+      return resp.status(200).json({
+        message: 'Sign in with Facebook',
+        data: {
+          user: existingUser,
+          token
+        }
+      });
+    }
+
+    const newUser = new User({
+      email: facebookProfile.email,
+      name: facebookProfile.name,
+      username: facebookProfile.email.split('@')[0],
+      profileImage: facebookProfile.imageUrl,
+      profileImageDefault: facebookProfile.imageUrl,
+      facebookId,
+      facebookAccessToken
+    });
+    const token = await newUser.generateAuthToken();
+
+    await newUser.save();
+    resp.status(200).json({
+      message: 'Sign in with Facebook',
+      data: {
+        user: newUser,
+        token
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * Sign out
  */
 export const signOut = async (req, resp, next) => {

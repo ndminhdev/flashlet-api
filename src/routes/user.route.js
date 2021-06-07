@@ -9,6 +9,7 @@ const route = new Router();
 route.post('/signup', userControllers.createAccount);
 route.post('/signin', userControllers.signIn);
 route.post('/signin/google', userControllers.signInWithGoogle);
+route.post('/signin/facebook', userControllers.signInWithFacebook);
 route.delete('/signout', passport.authenticate('jwt', { session: false }), userControllers.signOut);
 route.delete(
   '/signout/all',
