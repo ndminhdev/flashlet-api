@@ -2,7 +2,7 @@ version: "3.0"
 
 services:
   app:
-    container_name: node-app
+    container_name: flashlet-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -31,6 +31,7 @@ services:
       - redis
   
   mongodb:
+    container_name: flashlet-mongo
     image: mongo
     volumes:
       - ./docker/data/db:/data/db
@@ -39,7 +40,10 @@ services:
     restart: "unless-stopped"
   
   redis:
+    container_name: flashlet-redis
     image: redis:5.0-alpine
     volumes:
       - ./docker/data/redis:/data
+    ports:
+      - "6379:6379"
     restart: "unless-stopped"

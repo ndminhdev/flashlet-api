@@ -11,6 +11,7 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
+import cleanCache from '../middlewares/cleanCache.middleware';
 
 /**
  * Create account with email, name & password
@@ -221,7 +222,7 @@ export const getUserProfile = async (req, resp, next) => {
   const { username } = req.params;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).cache({ key: username, field: 'profile' });
 
     if (!user) {
       throw new HttpError(404, 'Username not found', { username });
@@ -326,7 +327,7 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
       {
         $limit: +limit
       }
-    ]);
+    ]).cache({ key: 'publicSets' });
 
     resp.status(200).json({
       message: 'Get my sets',
