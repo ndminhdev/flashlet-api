@@ -1,4 +1,7 @@
-CONTAINER_NAME=node-app
+CONTAINER_NAME=flashlet-api
+
+default:
+	docker-compose up
 
 start:
 	docker-compose up

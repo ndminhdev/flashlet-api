@@ -19,10 +19,10 @@ const cache = function (options = {}) {
 mongoose.Query.prototype.cache = cache;
 mongoose.Aggregate.prototype.cache = cache;
 
-const execute = (execType) => async function () {
+const execute = (exec) => async function () {
   if (!this.enableCache) {
     console.log('Data source: Database');
-    return execType.apply(this, arguments);
+    return exec.apply(this, arguments);
   }
 
   const cachedValue = await client.hget(this.key, this.field);
@@ -33,7 +33,7 @@ const execute = (execType) => async function () {
     return parsedCache;
   }
 
-  const result = await execType.apply(this, arguments);
+  const result = await exec.apply(this, arguments);
 
   client.hmset(this.key, this.field, JSON.stringify(result), 'EX', 300);
 
@@ -45,9 +45,9 @@ mongoose.Query.prototype.exec = execute(mongoose.Query.prototype.exec);
 mongoose.Aggregate.prototype.exec = execute(mongoose.Aggregate.prototype.exec);
 
 export default {
-  clearCache(hashKey) {
+  clearCache(key, field) {
     console.log('Cache cleaned');
-    client.del(JSON.stringify(hashKey));
+    client.hdel(key, field);
   }
 };
 
