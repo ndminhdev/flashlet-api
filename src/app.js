@@ -5,8 +5,8 @@ import cors from 'cors';
 import passport from 'passport';
 
 import { PORT } from './utils/secrets';
-import mongooseConnect from './config/mongoose';
-import configurePassportAuth from './config/passport';
+import mongooseConnect from './services/mongoose';
+import configurePassportAuth from './services/passport';
 
 const app = express();
 

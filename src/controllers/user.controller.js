@@ -11,7 +11,7 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
-import redisClient from '../config/redis';
+import redisClient from '../services/redis';
 
 /**
  * Create account with email, name & password

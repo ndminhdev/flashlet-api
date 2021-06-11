@@ -1,5 +1,5 @@
 import Preference from '../models/preference.model';
-// import redisClient from '../config/redis';
+// import redisClient from '../services/redis';
 
 /**
  * Get user preferences by userId
