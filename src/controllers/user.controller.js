@@ -11,7 +11,6 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
-import redisClient from '../services/redis';
 
 /**
  * Create account with email, name & password
@@ -222,17 +221,6 @@ export const getUserProfile = async (req, resp, next) => {
   const { username } = req.params;
 
   try {
-    const cachedUser = await redisClient.getAsync('user');
-
-    if (cachedUser) {
-      return resp.status(200).json({
-        message: 'Get user profile',
-        data: {
-          user: cachedUser
-        }
-      });
-    }
-
     const user = await User.findOne({ username });
 
     if (!user) {

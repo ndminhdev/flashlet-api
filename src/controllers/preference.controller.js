@@ -1,22 +1,10 @@
 import Preference from '../models/preference.model';
-// import redisClient from '../services/redis';
 
 /**
  * Get user preferences by userId
  */
 export const getPreferences = async (req, resp, next) => {
   try {
-    // const cachedPreference = await redisClient.getAsync('preference');
-
-    // if (cachedPreference) {
-    //   return resp.status(200).json({
-    //     message: 'Get user preferences',
-    //     data: {
-    //       preferences: JSON.parse(cachedPreference)
-    //     }
-    //   });
-    // }
-
     const preference = await Preference.findOne({ userId: req.user._id });
 
     if (!preference) {
@@ -25,7 +13,6 @@ export const getPreferences = async (req, resp, next) => {
         darkMode: false
       });
       await newPreference.save();
-      // redisClient.setAsync('preference', JSON.stringify(newPreference));
 
       return resp.status(200).json({
         message: 'Get user preferences',
@@ -34,8 +21,6 @@ export const getPreferences = async (req, resp, next) => {
         }
       });
     }
-
-    // redisClient.setAsync('preference', JSON.stringify(preference));
 
     resp.status(200).json({
       message: 'Get user preferences',
