@@ -6,6 +6,7 @@ import Card from '../models/card.model';
 import HttpError from '../utils/httpError';
 import { setSchema, cardSchema } from '../utils/validate';
 import streamUpload, { deleteFile } from '../utils/uploader';
+import { clearCache } from '../services/cache';
 
 /**
  * Create a new study set
@@ -285,7 +286,7 @@ export const getSetById = async (req, resp, next) => {
           'cards.__v': 0
         }
       }
-    ]);
+    ]).cache({ key: 'sets', field: setId });
 
     const set = agg[0];
 
@@ -312,6 +313,10 @@ export const updateSet = async (req, resp, next) => {
   const { title, description, isPublic } = req.body;
 
   try {
+    // clear cache
+    clearCache({ key: 'sets', fields: [setId] });
+
+    // validate response data
     const { errors, value } = await setSchema.validate(req.body);
 
     if (errors) {
@@ -324,6 +329,7 @@ export const updateSet = async (req, resp, next) => {
       throw new HttpError(404, 'Set is not found or You can access this set');
     }
 
+    // update new set fields
     set.title = title;
     set.description = description;
     set.isPublic = isPublic;
@@ -347,6 +353,9 @@ export const deleteSet = async (req, resp, next) => {
   const { setId } = req.params;
 
   try {
+    // clear cache
+    clearCache({ key: 'sets', fields: [setId] });
+
     const set = await Set.findOne({ _id: setId, userId: req.user._id });
 
     if (!set) {
@@ -370,6 +379,9 @@ export const addCard = async (req, resp, next) => {
   const { term, definition } = req.body;
 
   try {
+    // clear cache
+    clearCache({ key: 'sets', fields: [setId] });
+
     const set = await Set.findById(setId);
 
     if (!set) {
@@ -422,6 +434,9 @@ export const editCard = async (req, resp, next) => {
     const card = await Card.findById(cardId);
     const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
 
+    // clear cache
+    clearCache({ key: 'sets', fields: [set._id] });
+
     if (!set) {
       throw new HttpError(401, 'You cannot access this feature');
     }
@@ -462,6 +477,9 @@ export const removeCard = async (req, resp, next) => {
   try {
     const card = await Card.findById(cardId);
     const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
+
+    // clear cache
+    clearCache({ key: 'sets', fields: [set._id] });
 
     if (!set) {
       throw new HttpError(401, 'You cannot access this feature');

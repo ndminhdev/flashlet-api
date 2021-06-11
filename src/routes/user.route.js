@@ -3,6 +3,7 @@ import passport from 'passport';
 
 import { uploader } from '../utils/uploader';
 import * as userControllers from '../controllers/user.controller';
+import { clearCache } from '../services/cache';
 
 const route = new Router();
 
@@ -29,11 +30,19 @@ route.patch(
   '/me',
   passport.authenticate('jwt', { session: false }),
   uploader.single('profileImage'),
+  (req, resp, next) => {
+    clearCache({ key: req.user.username, fields: ['profile'] });
+    next();
+  },
   userControllers.changeProfile
 );
 route.delete(
   '/me',
   passport.authenticate('jwt', { session: false }),
+  (req, resp, next) => {
+    clearCache({ key: req.user.username });
+    next();
+  },
   userControllers.removeAccount
 );
 

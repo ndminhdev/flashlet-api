@@ -1,6 +1,7 @@
 import faker from 'faker';
 
 import User from '../models/user.model';
+import Preference from '../models/preference.model';
 import Set from '../models/set.model';
 import Card from '../models/card.model';
 import grabProfileImage from '../utils/grabProfileImage';
@@ -24,7 +25,12 @@ const generateSeed = async () => {
       profileImageDefault: grabProfileImage(email),
       password: '@6991hniM'
     });
+    const preference = new Preference({
+      userId: user._id,
+      darkMode: true
+    });
     await user.save();
+    await preference.save();
     userIds.push(user._id);
   }
 

@@ -10,7 +10,7 @@ const sendEmailWithSendgrid = async (to, subject, text, html) => {
     from: 'ndminh1307@gmail.com',
     subject,
     text,
-    html,
+    html
   };
 
   await sgMail.send(msg);

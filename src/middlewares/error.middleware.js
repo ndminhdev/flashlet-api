@@ -8,7 +8,7 @@ const errorHandler = (err, req, resp, next) => {
   const { code, message, data, value } = err;
   resp.status(code || 500).json({
     message,
-    data: data || value,
+    data: data || value
   });
 };
 

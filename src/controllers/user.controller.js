@@ -1,5 +1,7 @@
 import User from '../models/user.model';
 import Set from '../models/set.model';
+import Preference from '../models/preference.model';
+
 import {
   createAccountSchema,
   signInSchema,
@@ -11,7 +13,6 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
-import cleanCache from '../middlewares/cleanCache.middleware';
 
 /**
  * Create account with email, name & password
@@ -51,6 +52,7 @@ export const createAccount = async (req, resp, next) => {
 
     const profileImageDefault = grabProfileImage(email);
 
+    // create new user
     const newUser = new User({
       email,
       name,
@@ -58,6 +60,13 @@ export const createAccount = async (req, resp, next) => {
       password,
       profileImageDefault
     });
+
+    // attach a new preferences
+    const newPreference = new Preference({
+      userId: req.user._id,
+      darkMode: false
+    });
+    await newPreference.save();
 
     await newUser.save();
     resp.status(201).json({
@@ -327,7 +336,7 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
       {
         $limit: +limit
       }
-    ]).cache({ key: 'publicSets' });
+    ]);
 
     resp.status(200).json({
       message: 'Get my sets',

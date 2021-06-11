@@ -20,9 +20,7 @@ if (!JWT_SECRET) {
 export const RESET_PASSWORD_SECRET = process.env.RESET_PASSWORD_SECRET;
 
 if (!RESET_PASSWORD_SECRET) {
-  logger.error(
-    'No reset password jwt secret key. Please set RESET_PASSWORD_SECRET.'
-  );
+  logger.error('No reset password jwt secret key. Please set RESET_PASSWORD_SECRET.');
   process.exit(1);
 }
 

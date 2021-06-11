@@ -5,7 +5,7 @@ import { JWT_SECRET } from '../utils/secrets';
 
 const options = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: JWT_SECRET,
+  secretOrKey: JWT_SECRET
 };
 
 const configurePassportAuth = (passport) => {

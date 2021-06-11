@@ -5,11 +5,12 @@ import { MONGO_URI } from '../utils/secrets';
 import generateSeed from '../database/seed';
 
 const mongooseConnect = () => {
-  return mongoose.connect(MONGO_URI, {
-    useCreateIndex: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  return mongoose
+    .connect(MONGO_URI, {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    })
     .then(() => {
       logger.debug('MongoDB connected.');
       generateSeed().then(() => logger.debug('Generate database seeds'));
