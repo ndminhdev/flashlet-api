@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import logger from '../utils/logger';
-import { mode, MONGO_URI } from '../utils/secrets';
+import { MONGO_URI } from '../utils/secrets';
 
 import generateSeed from '../database/seed';
 
@@ -18,7 +18,7 @@ const mongooseConnect = () => {
       logger.error('Retry in 5 sec. Make sure MongoDB instance is running');
       logger.error(err.message);
       setTimeout(mongooseConnect, 5000);
-    })
+    });
 };
 
 export default mongooseConnect;

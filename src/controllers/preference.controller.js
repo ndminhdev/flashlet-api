@@ -1,23 +1,21 @@
 import Preference from '../models/preference.model';
-import redisClient from '../config/redis';
+// import redisClient from '../config/redis';
 
 /**
  * Get user preferences by userId
  */
 export const getPreferences = async (req, resp, next) => {
   try {
-    const data = await redisClient.getAsync('preference');
+    // const cachedPreference = await redisClient.getAsync('preference');
 
-    console.log('redis', data);
-
-    if (data) {
-      return resp.status(200).json({
-        message: 'Get user preferences',
-        data: {
-          preferences: JSON.parse(data)
-        }
-      });
-    }
+    // if (cachedPreference) {
+    //   return resp.status(200).json({
+    //     message: 'Get user preferences',
+    //     data: {
+    //       preferences: JSON.parse(cachedPreference)
+    //     }
+    //   });
+    // }
 
     const preference = await Preference.findOne({ userId: req.user._id });
 
@@ -27,7 +25,7 @@ export const getPreferences = async (req, resp, next) => {
         darkMode: false
       });
       await newPreference.save();
-      redisClient.setAsync('preference', JSON.stringify(newPreference));
+      // redisClient.setAsync('preference', JSON.stringify(newPreference));
 
       return resp.status(200).json({
         message: 'Get user preferences',
@@ -37,7 +35,7 @@ export const getPreferences = async (req, resp, next) => {
       });
     }
 
-    redisClient.setAsync('preference', JSON.stringify(preference));
+    // redisClient.setAsync('preference', JSON.stringify(preference));
 
     resp.status(200).json({
       message: 'Get user preferences',
