@@ -191,9 +191,8 @@ export const getMySets = async (req, resp, next) => {
           'previewTerms.setId': 0,
           'previewTerms.__v': 0
         }
-      },
+      }
     ]).cache({ key: req.user.username, field: 'sets' });
-
 
     const setsCount = sets.length;
     const totalPage =
@@ -202,7 +201,9 @@ export const getMySets = async (req, resp, next) => {
         : Math.floor(setsCount / +limit) + 1;
     const hasNextPage = +page < totalPage;
     // sets ordered by sortBy and chunk with size = limit
-    const sortedSets = _.orderBy(sets, function (s) { return s[sortBy]; });
+    const sortedSets = _.orderBy(sets, function (s) {
+      return s[sortBy];
+    });
     const orderedSets = orderBy === 1 ? sortedSets : _.reverse(sortedSets);
     const chunkedSets = _.chunk(orderedSets, +limit);
 
@@ -300,9 +301,6 @@ export const updateSet = async (req, resp, next) => {
   const { title, description, isPublic } = req.body;
 
   try {
-    // clear cache
-    clearCache({ key: 'sets', fields: [setId] });
-
     // validate response data
     const { errors, value } = await setSchema.validate(req.body);
 
@@ -340,9 +338,6 @@ export const deleteSet = async (req, resp, next) => {
   const { setId } = req.params;
 
   try {
-    // clear cache
-    clearCache({ key: 'sets', fields: [setId] });
-
     const set = await Set.findOne({ _id: setId, userId: req.user._id.toString() });
 
     if (!set) {
@@ -366,9 +361,6 @@ export const addCard = async (req, resp, next) => {
   const { term, definition } = req.body;
 
   try {
-    // clear cache
-    clearCache({ key: 'sets', fields: [setId] });
-
     const set = await Set.findById(setId);
 
     if (!set) {
@@ -421,9 +413,6 @@ export const editCard = async (req, resp, next) => {
     const card = await Card.findById(cardId);
     const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
 
-    // clear cache
-    clearCache({ key: 'sets', fields: [set._id.toString()] });
-
     if (!set) {
       throw new HttpError(401, 'You cannot access this feature');
     }
@@ -464,9 +453,6 @@ export const removeCard = async (req, resp, next) => {
   try {
     const card = await Card.findById(cardId);
     const set = await Set.findOne({ _id: card.setId, userId: req.user._id });
-
-    // clear cache
-    clearCache({ key: 'sets', fields: [set._id.toString()] });
 
     if (!set) {
       throw new HttpError(401, 'You cannot access this feature');

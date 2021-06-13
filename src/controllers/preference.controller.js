@@ -1,5 +1,4 @@
 import Preference from '../models/preference.model';
-import { clearCache } from '../services/cache';
 
 /**
  * Get user preferences by userId
@@ -29,8 +28,6 @@ export const changePreferences = async (req, resp, next) => {
   const { darkMode } = req.body;
 
   try {
-    // clear cache
-    clearCache({ key: req.user.username, fields: ['preferences'] });
     const preference = await Preference.findOne({ userId: req.user._id });
 
     preference.darkMode = darkMode;
