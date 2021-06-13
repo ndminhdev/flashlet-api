@@ -201,10 +201,7 @@ export const getMySets = async (req, resp, next) => {
         : Math.floor(setsCount / +limit) + 1;
     const hasNextPage = +page < totalPage;
     // sets ordered by sortBy and chunk with size = limit
-    const sortedSets = _.orderBy(sets, function (s) {
-      return s[sortBy];
-    });
-    const orderedSets = orderBy === 1 ? sortedSets : _.reverse(sortedSets);
+    const orderedSets = _.orderBy(sets, [sortBy], [orderBy]);
     const chunkedSets = _.chunk(orderedSets, +limit);
 
     resp.status(200).json({

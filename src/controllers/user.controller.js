@@ -314,17 +314,15 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
     ]).cache({ key: user.username, field: 'sets' });
 
     // sets ordered by sortBy and chunk with size = limit
-    const filteredAndSortedSets = _.orderBy(
+    const filteredAndOrderedSets = _.orderBy(
       _.filter(sets, function (s) {
         return s.isPublic;
       }),
-      function (s) {
-        return s[sortBy];
-      }
+      [sortBy],
+      [orderBy]
     );
-    const orderedSets = orderBy === 1 ? filteredAndSortedSets : _.reverse(filteredAndSortedSets);
-    const chunkedSets = _.chunk(orderedSets, +limit);
-    const setsCount = filteredAndSortedSets.length;
+    const chunkedSets = _.chunk(filteredAndOrderedSets, +limit);
+    const setsCount = filteredAndOrderedSets.length;
     const totalPage =
       setsCount % +limit === 0
         ? Math.floor(setsCount / +limit)
