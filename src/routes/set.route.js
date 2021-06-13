@@ -11,7 +11,7 @@ route.post(
   '/sets',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   setControllers.createSet
@@ -23,7 +23,7 @@ route.put(
   '/sets/:setId',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   setControllers.updateSet
@@ -32,7 +32,7 @@ route.delete(
   '/sets/:setId',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   setControllers.deleteSet
@@ -41,7 +41,7 @@ route.post(
   '/sets/:setId/cards',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   uploader.single('image'),
@@ -51,7 +51,7 @@ route.put(
   '/cards/:cardId',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   uploader.single('image'),
@@ -61,7 +61,7 @@ route.delete(
   '/cards/:cardId',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, field: 'sets' });
+    clearCache({ key: req.user.username, fields: ['sets'] });
     next();
   },
   setControllers.removeCard
