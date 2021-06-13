@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import User from '../models/user.model';
 import Set from '../models/set.model';
 import Preference from '../models/preference.model';
@@ -13,6 +14,7 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
+import redisClient from '../services/cache';
 
 /**
  * Create account with email, name & password
@@ -262,28 +264,10 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
       throw new HttpError(404, 'User is not found');
     }
 
-    const agg = await Set.aggregate([
-      {
-        $match: {
-          userId: user._id,
-          isPublic: true
-        }
-      },
-      {
-        $count: 'setsCount'
-      }
-    ]);
-    const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
-    const totalPage =
-      setsCount % +limit === 0
-        ? Math.floor(setsCount / +limit)
-        : Math.floor(setsCount / +limit) + 1;
-    const hasNextPage = +page < totalPage;
     const sets = await Set.aggregate([
       {
         $match: {
-          userId: user._id,
-          isPublic: true
+          userId: user._id
         }
       },
       {
@@ -326,24 +310,26 @@ export const getPublicSetsOfAnUser = async (req, resp, next) => {
           'previewTerms.setId': 0,
           'previewTerms.__v': 0
         }
-      },
-      {
-        $sort: { [sortBy]: +orderBy }
-      },
-      {
-        $skip: (+page - 1) * +limit
-      },
-      {
-        $limit: +limit
       }
-    ]);
+    ]).cache({ key: user.username, field: 'sets' });
 
-    resp.status(200).json({
-      message: 'Get my sets',
+    // sets ordered by sortBy and chunk with size = limit
+    const filteredAndSortedSets = _.orderBy(_.filter(sets, function (s) { return s.isPublic; }), function (s) { return s[sortBy]; });
+    const orderedSets = orderBy === 1 ? filteredAndSortedSets : _.reverse(filteredAndSortedSets);
+    const chunkedSets = _.chunk(orderedSets, +limit);
+    const setsCount = filteredAndSortedSets.length;
+    const totalPage =
+      setsCount % +limit === 0
+        ? Math.floor(setsCount / +limit)
+        : Math.floor(setsCount / +limit) + 1;
+    const hasNextPage = +page < totalPage;
+
+    return resp.status(200).json({
+      message: 'Get public sets of an user',
       data: {
         hasNextPage,
         setsCount,
-        sets
+        sets: chunkedSets[+page - 1]
       }
     });
   } catch (err) {

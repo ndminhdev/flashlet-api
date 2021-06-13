@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Types } from 'mongoose';
 import escapeStringRegexp from 'escape-string-regexp';
 
@@ -6,7 +7,6 @@ import Card from '../models/card.model';
 import HttpError from '../utils/httpError';
 import { setSchema, cardSchema } from '../utils/validate';
 import streamUpload, { deleteFile } from '../utils/uploader';
-import { clearCache } from '../services/cache';
 
 /**
  * Create a new study set
@@ -145,22 +145,6 @@ export const getMySets = async (req, resp, next) => {
   const { sortBy = 'title', orderBy = 1, limit = 8, page = 1 } = req.query;
 
   try {
-    const agg = await Set.aggregate([
-      {
-        $match: {
-          userId: req.user._id
-        }
-      },
-      {
-        $count: 'setsCount'
-      }
-    ]);
-    const setsCount = agg.length > 0 ? agg[0].setsCount : 0;
-    const totalPage =
-      setsCount % +limit === 0
-        ? Math.floor(setsCount / +limit)
-        : Math.floor(setsCount / +limit) + 1;
-    const hasNextPage = +page < totalPage;
     const sets = await Set.aggregate([
       {
         $match: {
@@ -208,23 +192,26 @@ export const getMySets = async (req, resp, next) => {
           'previewTerms.__v': 0
         }
       },
-      {
-        $sort: { [sortBy]: +orderBy }
-      },
-      {
-        $skip: (+page - 1) * +limit
-      },
-      {
-        $limit: +limit
-      }
-    ]);
+    ]).cache({ key: req.user.username, field: 'sets' });
+
+
+    const setsCount = sets.length;
+    const totalPage =
+      setsCount % +limit === 0
+        ? Math.floor(setsCount / +limit)
+        : Math.floor(setsCount / +limit) + 1;
+    const hasNextPage = +page < totalPage;
+    // sets ordered by sortBy and chunk with size = limit
+    const sortedSets = _.orderBy(sets, function (s) { return s[sortBy]; });
+    const orderedSets = orderBy === 1 ? sortedSets : _.reverse(sortedSets);
+    const chunkedSets = _.chunk(orderedSets, +limit);
 
     resp.status(200).json({
       message: 'Get my sets',
       data: {
         hasNextPage,
         setsCount,
-        sets
+        sets: chunkedSets[+page - 1]
       }
     });
   } catch (err) {
