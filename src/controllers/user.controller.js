@@ -14,7 +14,6 @@ import HttpError from '../utils/httpError';
 import grabProfileImage from '../utils/grabProfileImage';
 import sendEmailWithSendgrid, { createHTMLTemplate } from '../utils/sendgrid';
 import streamUpload from '../utils/uploader';
-import redisClient from '../services/cache';
 
 /**
  * Create account with email, name & password
@@ -136,7 +135,12 @@ export const signInWithGoogle = async (req, resp, next) => {
       googleAccessToken
     });
     const token = await newUser.generateAuthToken();
-
+    // attach a new preferences
+    const newPreference = new Preference({
+      userId: req.user._id,
+      darkMode: false
+    });
+    await newPreference.save();
     await newUser.save();
     resp.status(200).json({
       message: 'Sign in with Google',
@@ -182,7 +186,12 @@ export const signInWithFacebook = async (req, resp, next) => {
       facebookAccessToken
     });
     const token = await newUser.generateAuthToken();
-
+    // attach a new preferences
+    const newPreference = new Preference({
+      userId: req.user._id,
+      darkMode: false
+    });
+    await newPreference.save();
     await newUser.save();
     resp.status(200).json({
       message: 'Sign in with Facebook',
