@@ -114,6 +114,7 @@ export const signInWithGoogle = async (req, resp, next) => {
 
     if (existingUser) {
       existingUser.googleAccessToken = googleAccessToken;
+      existingUser.profileImage = googleProfile.imageUrl;
       const token = await existingUser.generateAuthToken();
       await existingUser.save();
       return resp.status(200).json({
@@ -137,7 +138,7 @@ export const signInWithGoogle = async (req, resp, next) => {
     const token = await newUser.generateAuthToken();
     // attach a new preferences
     const newPreference = new Preference({
-      userId: req.user._id,
+      userId: newUser._id,
       darkMode: false
     });
     await newPreference.save();
@@ -165,6 +166,7 @@ export const signInWithFacebook = async (req, resp, next) => {
 
     if (existingUser) {
       existingUser.facebookAccessToken = facebookAccessToken;
+      existingUser.profileImage = facebookProfile.imageUrl;
       const token = await existingUser.generateAuthToken();
       await existingUser.save();
       return resp.status(200).json({
@@ -188,7 +190,7 @@ export const signInWithFacebook = async (req, resp, next) => {
     const token = await newUser.generateAuthToken();
     // attach a new preferences
     const newPreference = new Preference({
-      userId: req.user._id,
+      userId: newUser._id,
       darkMode: false
     });
     await newPreference.save();
