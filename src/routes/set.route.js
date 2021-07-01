@@ -41,7 +41,7 @@ route.post(
   '/sets/:setId/cards',
   passport.authenticate('jwt', { session: false }),
   (req, resp, next) => {
-    clearCache({ key: req.user.username, fields: ['sets'] });
+    clearCache({ key: 'sets', fields: [req.params.setId] });
     next();
   },
   uploader.single('image'),
@@ -50,20 +50,12 @@ route.post(
 route.put(
   '/cards/:cardId',
   passport.authenticate('jwt', { session: false }),
-  (req, resp, next) => {
-    clearCache({ key: req.user.username, fields: ['sets'] });
-    next();
-  },
   uploader.single('image'),
   setControllers.editCard
 );
 route.delete(
   '/cards/:cardId',
   passport.authenticate('jwt', { session: false }),
-  (req, resp, next) => {
-    clearCache({ key: req.user.username, fields: ['sets'] });
-    next();
-  },
   setControllers.removeCard
 );
 route.get(

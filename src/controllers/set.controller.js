@@ -7,6 +7,7 @@ import Card from '../models/card.model';
 import HttpError from '../utils/httpError';
 import { setSchema, cardSchema } from '../utils/validate';
 import streamUpload, { deleteFile } from '../utils/uploader';
+import { clearCache } from '../services/cache';
 
 /**
  * Create a new study set
@@ -414,6 +415,9 @@ export const editCard = async (req, resp, next) => {
       throw new HttpError(401, 'You cannot access this feature');
     }
 
+    // clear cache this set
+    clearCache({ key: 'sets', fields: [set._id.toString()] });
+
     card.term = term;
     card.definition = definition;
 
@@ -454,6 +458,9 @@ export const removeCard = async (req, resp, next) => {
     if (!set) {
       throw new HttpError(401, 'You cannot access this feature');
     }
+
+    // clear cache this set
+    clearCache({ key: 'sets', fields: [set._id.toString()] });
 
     await card.remove();
     resp.status(200).json({
